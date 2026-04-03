@@ -476,6 +476,31 @@
 
     /* separator */
     .sep { height: 1px; background: var(--border-light); margin: var(--sp4) 0; }
+
+    /* ═══════════════════════ FOLDER PICKER ═══════════════════════ */
+    .folder-picker {
+      border: 1.5px dashed var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--sp5) var(--sp6);
+      display: flex; align-items: center; gap: var(--sp4);
+      cursor: pointer; transition: border-color var(--transition), background var(--transition);
+      background: var(--bg-secondary);
+    }
+    .folder-picker:hover { border-color: var(--accent-600); background: var(--accent-50); }
+    body.dark .folder-picker:hover { background: rgba(15,64,36,.1); }
+    .folder-picker.has-folder { border-style: solid; border-color: var(--accent-600); background: var(--accent-50); }
+    body.dark .folder-picker.has-folder { background: rgba(15,64,36,.15); }
+    .folder-icon { font-size: 28px; flex-shrink: 0; }
+    .folder-text { flex: 1; min-width: 0; }
+    .folder-name {
+      font-weight: var(--weight-semibold); font-size: var(--text-base);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .folder-hint { font-size: var(--text-sm); color: var(--text-muted); margin-top: 2px; }
+    .folder-change {
+      font-size: var(--text-xs); color: var(--accent-600); font-weight: var(--weight-semibold);
+      flex-shrink: 0; white-space: nowrap;
+    }
   </style>
 </head>
 <body>
@@ -685,8 +710,16 @@
           <!-- Save path override -->
           <div class="card">
             <div class="card-title">Where should the file be saved?</div>
-            <div class="card-subtitle">Leave this blank to use your default save folder from Settings.</div>
-            <input class="input" id="inp-output" type="text" placeholder="Leave blank to use default…">
+            <div class="card-subtitle">Click to pick a folder, or leave it to use your default from Settings.</div>
+            <div class="folder-picker" id="folderPicker" onclick="pickFolder('inp-output','folderPicker','folderPickerName','folderPickerHint')">
+              <div class="folder-icon">📁</div>
+              <div class="folder-text">
+                <div class="folder-name" id="folderPickerName">Click to choose a folder</div>
+                <div class="folder-hint" id="folderPickerHint">Using default save folder from Settings</div>
+              </div>
+              <div class="folder-change" id="folderPickerChange"></div>
+            </div>
+            <input type="hidden" id="inp-output">
           </div>
 
           <!-- Submit -->
@@ -787,9 +820,17 @@
         <div class="settings-section">
           <div class="settings-section-title">📁 Where Files Are Saved</div>
           <div class="field">
-            <label class="field-label" for="cfg-output">Default save folder</label>
-            <div class="field-hint">All scraped content will be saved here unless you choose a different folder per scrape.</div>
-            <input class="input" id="cfg-output" type="text" placeholder="./output">
+            <label class="field-label">Default save folder</label>
+            <div class="field-hint" style="margin-bottom:var(--sp3);">All scraped content will be saved here unless you choose a different folder per scrape.</div>
+            <div class="folder-picker" id="cfgFolderPicker" onclick="pickFolder('cfg-output','cfgFolderPicker','cfgFolderName','cfgFolderHint')">
+              <div class="folder-icon">📁</div>
+              <div class="folder-text">
+                <div class="folder-name" id="cfgFolderName">Click to choose a folder</div>
+                <div class="folder-hint" id="cfgFolderHint">No default folder set — will use ./output</div>
+              </div>
+              <div class="folder-change" id="cfgFolderChange"></div>
+            </div>
+            <input type="hidden" id="cfg-output">
           </div>
         </div>
 
@@ -881,11 +922,38 @@
   let picks    = { depth: '1', format: 'markdown', speed: '3', 'cfg-format': 'markdown', 'cfg-depth': '1' };
 
   // ─── Config ───────────────────────────────────────────────────────────────
+  // ─── Folder picker ────────────────────────────────────────────────────────
+  async function pickFolder(hiddenId, pickerId, nameId, hintId) {
+    try {
+      const dir = await window.showDirectoryPicker({ mode: 'readwrite' });
+      document.getElementById(hiddenId).value  = dir.name;
+      document.getElementById(nameId).textContent = dir.name;
+      document.getElementById(hintId).textContent = 'Folder selected — files will be saved here';
+      document.getElementById(pickerId).classList.add('has-folder');
+      const chg = document.getElementById(pickerId + 'Change') || document.getElementById(pickerId.replace('Picker','PickerChange'));
+      if (chg) chg.textContent = 'Change ▸';
+      // Store handle for later use
+      window['_dirHandle_' + hiddenId] = dir;
+    } catch (e) {
+      if (e.name !== 'AbortError') showToast('Could not open folder picker');
+    }
+  }
+
+  function setFolderDisplay(pickerId, nameId, hintId, changeId, folderName, hint) {
+    if (!folderName) return;
+    document.getElementById(nameId).textContent   = folderName;
+    document.getElementById(hintId).textContent   = hint || 'Files will be saved here';
+    document.getElementById(pickerId).classList.add('has-folder');
+    const chg = document.getElementById(changeId);
+    if (chg) chg.textContent = 'Change ▸';
+  }
+
   function loadConfig() {
     cfg = JSON.parse(localStorage.getItem('c4n_config') || '{}');
-    document.getElementById('cfg-api').value     = cfg.api     || 'http://localhost:11235';
-    document.getElementById('cfg-output').value  = cfg.output  || '';
+    document.getElementById('cfg-api').value      = cfg.api      || 'http://localhost:11235';
+    document.getElementById('cfg-output').value   = cfg.output   || '';
     document.getElementById('cfg-maxpages').value = cfg.maxpages || '';
+    if (cfg.output) setFolderDisplay('cfgFolderPicker','cfgFolderName','cfgFolderHint','cfgFolderChange', cfg.output, 'Current default folder');
     if (cfg.format) forceSelect('cfg-format', cfg.format);
     if (cfg.depth)  forceSelect('cfg-depth',  String(cfg.depth));
     if (cfg.format) forceSelect('format', cfg.format);
@@ -1044,6 +1112,12 @@
     document.getElementById('inp-output').value = '';
     document.getElementById('opt-maxpages').value = '';
     document.getElementById('opt-prefix').value   = '';
+    // reset folder picker UI
+    document.getElementById('folderPicker').classList.remove('has-folder');
+    document.getElementById('folderPickerName').textContent = 'Click to choose a folder';
+    document.getElementById('folderPickerHint').textContent = 'Using default save folder from Settings';
+    document.getElementById('folderPickerChange').textContent = '';
+    window._dirHandle_inp_output = null;
     showView('dashboard');
   }
 
