@@ -1,6 +1,6 @@
 # Crawl4Noobs
 
-A clean, minimal UI for [Crawl4AI](https://crawl4ai.com) — built as a single-page application with no dependencies.
+A simple SPA GUI for Crawl4AI for folks who struggle with the CLI.
 
 ## Features
 
@@ -15,7 +15,3 @@ A clean, minimal UI for [Crawl4AI](https://crawl4ai.com) — built as a single-p
 Just open `index.html` in your browser — no build step, no server required.
 
 To connect it to a real Crawl4AI backend, replace the `startCrawl()` and `addToQueue()` functions in the script section with actual API calls to your Crawl4AI instance.
-
-## Design
-
-Built with the EZ Design System — warm neutrals, Space Grotesk headings, JetBrains Mono metrics, dark green accent.
