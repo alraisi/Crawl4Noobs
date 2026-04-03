@@ -2,9 +2,11 @@
 echo.
 echo  Crawl4Noobs
 echo  -----------
-echo  Opening the scraper in your browser...
+echo  Installing requirements (first run only)...
+pip install flask aiohttp -q
 echo.
-echo  Make sure Docker is running with:
-echo  docker run -p 11235:11235 unclecode/crawl4ai:latest
+echo  Starting... your browser will open automatically.
+echo  Press Ctrl+C here to stop the server.
 echo.
-start "" "%~dp0index.html"
+python server.py
+pause
