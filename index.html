@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Crawl4AI</title>
+  <title>Crawl4Noobs — Web Scraper</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -16,16 +16,19 @@
       --font-sans:    'DM Sans', -apple-system, system-ui, sans-serif;
       --font-mono:    'JetBrains Mono', 'SF Mono', monospace;
 
-      --text-xs: 11px; --text-sm: 12px; --text-base: 14px; --text-md: 15px;
-      --text-lg: 16px; --text-xl: 18px; --text-2xl: 20px; --text-3xl: 24px; --text-4xl: 32px;
+      --text-xs:   11px; --text-sm: 12px; --text-base: 14px; --text-md: 15px;
+      --text-lg:   16px; --text-xl: 18px; --text-2xl: 20px;
+      --text-3xl:  24px; --text-4xl: 32px;
 
-      --weight-normal: 400; --weight-medium: 500; --weight-semibold: 600; --weight-bold: 700;
+      --weight-normal: 400; --weight-medium: 500;
+      --weight-semibold: 600; --weight-bold: 700;
       --leading-tight: 1.2; --leading-normal: 1.5; --leading-relaxed: 1.65;
 
       --gray-50:  #f6f5f3; --gray-100: #eeedeb; --gray-200: #e2e0dc;
       --gray-300: #d1cfc9; --gray-400: #a8a69f; --gray-500: #85837c;
       --gray-600: #65635d; --gray-700: #4d4b46; --gray-900: #23221f;
 
+      --accent-50:  #f0fdf4;
       --accent-100: #dcfce7; --accent-200: #86efac;
       --accent-500: #14532d; --accent-600: #0f4024; --accent-700: #0a2e1a;
 
@@ -48,1218 +51,1234 @@
       --border-focus:   var(--accent-500);
 
       --sp1: 4px; --sp2: 8px; --sp3: 12px; --sp4: 16px;
-      --sp5: 20px; --sp6: 24px; --sp8: 32px; --sp10: 40px;
+      --sp5: 20px; --sp6: 24px; --sp8: 32px; --sp10: 40px; --sp12: 48px;
 
-      --r-sm: 4px; --r-md: 6px; --r-lg: 10px; --r-full: 9999px;
+      --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px;
+      --radius-xl: 16px; --radius-full: 9999px;
 
-      --shadow-sm: 0 1px 2px rgba(26,25,23,.05);
-      --shadow-md: 0 2px 8px rgba(26,25,23,.08);
-      --shadow-lg: 0 8px 24px rgba(26,25,23,.12);
-
-      --ease: cubic-bezier(0.16,1,0.3,1);
-      --fast: 150ms var(--ease);
-      --base: 200ms var(--ease);
+      --shadow-sm: 0 1px 2px rgba(35,34,31,.06);
+      --shadow-md: 0 4px 12px rgba(35,34,31,.08);
+      --shadow-lg: 0 8px 24px rgba(35,34,31,.12);
 
       --sidebar-w: 240px;
-      --panel-w:   400px;
+      --transition: 150ms ease-out;
     }
 
+    /* Dark mode */
     body.dark {
-      --text-primary:   #e5e4e1; --text-secondary: #a09e98;
-      --text-tertiary:  #7a7873; --text-muted:     #5a5854;
-      --text-accent:    var(--accent-200);
-      --bg-primary:  #1a1917; --bg-secondary: #222120;
-      --bg-tertiary: #2a2928; --bg-hover:     #302f2d;
-      --border-light: #333230; --border-default: #44433f; --border-hover: #5a5955;
+      --bg-primary:   #1a1917;
+      --bg-secondary: #222120;
+      --bg-tertiary:  #2a2928;
+      --bg-hover:     #2a2928;
+      --text-primary:   #e5e4e1;
+      --text-secondary: #a09e98;
+      --text-tertiary:  #7a7874;
+      --text-muted:     #5a5855;
+      --border-light:   #333230;
+      --border-default: #44433f;
+      --border-hover:   #5a5855;
       --shadow-sm: 0 1px 2px rgba(0,0,0,.2);
-      --shadow-md: 0 2px 8px rgba(0,0,0,.25);
+      --shadow-md: 0 4px 12px rgba(0,0,0,.25);
       --shadow-lg: 0 8px 24px rgba(0,0,0,.3);
     }
 
-    body {
-      font-family: var(--font-sans);
-      font-size: var(--text-base);
-      line-height: var(--leading-normal);
-      color: var(--text-primary);
-      background: var(--bg-secondary);
-      -webkit-font-smoothing: antialiased;
-      display: flex; min-height: 100vh;
-      overflow-x: hidden;
-    }
+    html, body { height: 100%; font-family: var(--font-sans); background: var(--bg-primary); color: var(--text-primary); font-size: var(--text-base); line-height: var(--leading-normal); }
 
-    h1,h2,h3 { font-family: var(--font-display); line-height: var(--leading-tight); font-weight: var(--weight-bold); }
+    /* ═══════════════════════ LAYOUT ═══════════════════════ */
+    .layout { display: flex; height: 100vh; overflow: hidden; }
 
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 3px; }
-
-    /* ═══════════════════════ SIDEBAR ═══════════════════════ */
     .sidebar {
-      position: fixed; top: 0; left: 0; bottom: 0;
       width: var(--sidebar-w);
-      background: var(--bg-primary);
+      min-width: var(--sidebar-w);
+      background: var(--bg-secondary);
       border-right: 1px solid var(--border-light);
-      display: flex; flex-direction: column;
-      z-index: 50; overflow-y: auto;
-      transition: transform var(--base);
+      display: flex;
+      flex-direction: column;
+      transition: width var(--transition), min-width var(--transition);
+      overflow: hidden;
+      z-index: 10;
     }
+    .sidebar.collapsed { width: 56px; min-width: 56px; }
 
     .sidebar-brand {
-      padding: var(--sp4);
-      display: flex; align-items: center; gap: var(--sp3);
+      padding: var(--sp5) var(--sp4);
       border-bottom: 1px solid var(--border-light);
-      min-height: 56px;
+      display: flex;
+      align-items: center;
+      gap: var(--sp3);
+      min-height: 64px;
     }
-
-    .brand-mark {
-      width: 30px; height: 30px; border-radius: var(--r-md);
+    .brand-logo {
+      width: 32px; height: 32px; min-width: 32px;
       background: var(--accent-600);
+      border-radius: var(--radius-md);
       display: flex; align-items: center; justify-content: center;
-      color: #faf9f7; font-size: var(--text-xs);
-      font-family: var(--font-display); font-weight: var(--weight-bold);
-      letter-spacing: -0.5px; flex-shrink: 0;
+      color: #fff; font-family: var(--font-display); font-size: var(--text-xl); font-weight: 700;
     }
+    .brand-text { overflow: hidden; }
+    .brand-name { font-family: var(--font-display); font-weight: 700; font-size: var(--text-lg); white-space: nowrap; }
+    .brand-tag  { font-size: var(--text-xs); color: var(--text-muted); white-space: nowrap; }
 
-    .brand-name {
-      font-family: var(--font-display);
-      font-size: var(--text-lg); font-weight: var(--weight-bold);
-      color: var(--text-primary);
+    .nav-section { padding: var(--sp3) var(--sp2); }
+    .nav-label {
+      font-size: var(--text-xs); font-weight: var(--weight-semibold);
+      text-transform: uppercase; letter-spacing: .08em;
+      color: var(--text-muted); padding: var(--sp2) var(--sp2) var(--sp1);
+      white-space: nowrap; overflow: hidden;
     }
-
-    .brand-version {
-      font-size: var(--text-xs); color: var(--text-muted);
-      font-family: var(--font-mono); margin-left: auto;
-    }
-
-    .sidebar-section {
-      padding: var(--sp3) var(--sp3) var(--sp2);
-      font-size: 10px; font-weight: var(--weight-semibold);
-      text-transform: uppercase; letter-spacing: 0.6px;
-      color: var(--text-tertiary);
-    }
-
-    .nav { padding: 0 var(--sp2) var(--sp2); }
-
     .nav-item {
       display: flex; align-items: center; gap: var(--sp3);
-      padding: var(--sp2) var(--sp3);
-      border-radius: var(--r-md);
-      font-size: var(--text-sm); font-weight: var(--weight-medium);
-      color: var(--text-secondary);
-      cursor: pointer; text-decoration: none;
-      transition: var(--fast); user-select: none;
+      padding: 10px var(--sp3); border-radius: var(--radius-md);
+      cursor: pointer; transition: background var(--transition), color var(--transition);
+      color: var(--text-secondary); font-size: var(--text-base); font-weight: var(--weight-medium);
+      white-space: nowrap; border: none; background: none; width: 100%; text-align: left;
     }
-
     .nav-item:hover { background: var(--bg-hover); color: var(--text-primary); }
-
-    .nav-item.active {
-      background: var(--accent-100); color: var(--accent-600);
-      font-weight: var(--weight-semibold);
-    }
-
-    .nav-icon { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
-
-    .nav-badge {
-      margin-left: auto; font-family: var(--font-mono);
-      font-size: var(--text-xs); background: var(--bg-tertiary);
-      color: var(--text-tertiary); padding: 1px 6px;
-      border-radius: var(--r-full);
-    }
-
-    .nav-item.active .nav-badge { background: var(--accent-200); color: var(--accent-700); }
-
-    .sidebar-divider { height: 1px; background: var(--border-light); margin: var(--sp2) var(--sp3); }
-
-    /* Sidebar mini stats */
-    .mini-stats {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: var(--sp2); padding: 0 var(--sp3) var(--sp3);
-    }
-
-    .mini-stat {
-      background: var(--bg-secondary); border: 1px solid var(--border-light);
-      border-radius: var(--r-md); padding: var(--sp2) var(--sp3);
-    }
-
-    .mini-stat-val {
-      font-family: var(--font-display); font-size: var(--text-2xl);
-      font-weight: var(--weight-bold); color: var(--text-primary);
-    }
-
-    .mini-stat-lbl { font-size: var(--text-xs); color: var(--text-tertiary); margin-top: 1px; }
-
-    /* Sidebar filter */
-    .sidebar-search {
-      padding: 0 var(--sp3) var(--sp2);
-    }
-
-    .search-input {
-      width: 100%; height: 30px; padding: 0 var(--sp3);
-      font-size: var(--text-sm); font-family: var(--font-sans);
-      color: var(--text-primary); background: var(--bg-secondary);
-      border: 1px solid var(--border-light); border-radius: var(--r-sm);
-      transition: var(--fast);
-    }
-
-    .search-input:focus { border-color: var(--border-focus); outline: none; }
-
-    .filter-pill {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: var(--sp1) var(--sp3); border-radius: var(--r-sm);
-      font-size: var(--text-sm); color: var(--text-secondary);
-      cursor: pointer; transition: var(--fast);
-    }
-
-    .filter-pill:hover { background: var(--bg-hover); color: var(--text-primary); }
-    .filter-pill.active { background: var(--accent-100); color: var(--accent-600); font-weight: var(--weight-medium); }
-
-    .filter-pill .pill-count {
-      font-family: var(--font-mono); font-size: var(--text-xs);
-      background: var(--bg-tertiary); color: var(--text-tertiary);
-      padding: 1px 6px; border-radius: var(--r-full);
-    }
-
-    .filter-pill.active .pill-count { background: rgba(15,64,36,.12); color: var(--accent-600); }
+    .nav-item.active { background: var(--accent-100); color: var(--accent-600); }
+    body.dark .nav-item.active { background: rgba(15,64,36,.25); color: var(--accent-200); }
+    .nav-icon { font-size: 16px; min-width: 20px; text-align: center; }
+    .nav-text { overflow: hidden; }
 
     .sidebar-footer {
-      margin-top: auto; padding: var(--sp3);
+      margin-top: auto;
+      padding: var(--sp3) var(--sp2);
       border-top: 1px solid var(--border-light);
     }
 
-    .theme-btn {
-      width: 100%; display: flex; align-items: center; gap: var(--sp2);
+    /* Server status indicator */
+    .server-status {
+      display: flex; align-items: center; gap: var(--sp2);
       padding: var(--sp2) var(--sp3);
-      font-size: var(--text-sm); color: var(--text-tertiary);
-      cursor: pointer; border-radius: var(--r-sm);
-      border: none; background: none; font-family: var(--font-sans);
-      transition: var(--fast);
+      border-radius: var(--radius-md);
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      white-space: nowrap; overflow: hidden;
     }
+    .status-dot {
+      width: 7px; height: 7px; min-width: 7px;
+      border-radius: var(--radius-full);
+      background: var(--gray-400);
+      transition: background .3s;
+    }
+    .status-dot.online  { background: var(--success); box-shadow: 0 0 0 3px rgba(45,157,120,.2); }
+    .status-dot.offline { background: var(--error);   box-shadow: 0 0 0 3px rgba(214,69,69,.2); }
+    .status-dot.checking { animation: pulse 1s infinite; background: var(--warning); }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.4; } }
 
-    .theme-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+    /* Theme + collapse toggles */
+    .icon-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px; border-radius: var(--radius-md);
+      cursor: pointer; border: none; background: none; color: var(--text-muted);
+      font-size: 16px; transition: background var(--transition), color var(--transition);
+    }
+    .icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
 
     /* ═══════════════════════ MAIN ═══════════════════════ */
-    .main {
-      margin-left: var(--sidebar-w);
-      flex: 1; display: flex; flex-direction: column;
-      min-height: 100vh;
-      transition: margin-right var(--base);
-    }
+    .main { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+    .view { display: none; flex-direction: column; height: 100%; }
+    .view.active { display: flex; }
 
-    .main.has-panel { margin-right: var(--panel-w); }
-
-    /* ── Top bar ── */
-    .topbar {
-      position: sticky; top: 0; z-index: 30;
-      background: var(--bg-primary);
+    .view-header {
+      padding: var(--sp8) var(--sp8) var(--sp5);
       border-bottom: 1px solid var(--border-light);
-      padding: 0 var(--sp8);
-      display: flex; align-items: center; justify-content: space-between;
-      min-height: 56px;
-      box-shadow: var(--shadow-sm);
+      background: var(--bg-primary);
+      flex-shrink: 0;
     }
-
-    .topbar-title {
+    .view-title {
       font-family: var(--font-display);
-      font-size: var(--text-xl); font-weight: var(--weight-bold);
-      color: var(--text-primary);
+      font-size: var(--text-3xl); font-weight: var(--weight-bold);
+      color: var(--text-primary); line-height: var(--leading-tight);
     }
+    .view-subtitle { margin-top: var(--sp1); color: var(--text-secondary); font-size: var(--text-md); }
 
-    .topbar-actions { display: flex; gap: var(--sp2); align-items: center; }
+    .view-body { flex: 1; overflow-y: auto; padding: var(--sp8); }
 
-    /* ── Buttons ── */
+    /* ═══════════════════════ CARDS ═══════════════════════ */
+    .card {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: var(--sp6);
+      margin-bottom: var(--sp5);
+    }
+    .card-title {
+      font-family: var(--font-display); font-size: var(--text-xl);
+      font-weight: var(--weight-semibold); margin-bottom: var(--sp1);
+    }
+    .card-subtitle { color: var(--text-secondary); font-size: var(--text-sm); margin-bottom: var(--sp5); }
+
+    /* ═══════════════════════ FORM CONTROLS ═══════════════════════ */
+    .field { margin-bottom: var(--sp5); }
+    .field-label {
+      display: block;
+      font-size: var(--text-base); font-weight: var(--weight-semibold);
+      color: var(--text-primary); margin-bottom: var(--sp1);
+    }
+    .field-hint { font-size: var(--text-sm); color: var(--text-muted); margin-bottom: var(--sp2); }
+
+    .input {
+      width: 100%; padding: 10px var(--sp4);
+      background: var(--bg-primary); border: 1px solid var(--border-default);
+      border-radius: var(--radius-md); color: var(--text-primary);
+      font-family: var(--font-sans); font-size: var(--text-base);
+      transition: border-color var(--transition), box-shadow var(--transition);
+      outline: none;
+    }
+    .input:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(20,83,45,.1); }
+    .input::placeholder { color: var(--text-muted); }
+
+    /* Visual pill pickers */
+    .picker { display: flex; gap: var(--sp2); flex-wrap: wrap; }
+    .pick-btn {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: var(--sp3) var(--sp4); min-width: 72px;
+      border: 1.5px solid var(--border-default); border-radius: var(--radius-lg);
+      background: var(--bg-primary); cursor: pointer;
+      transition: border-color var(--transition), background var(--transition), color var(--transition);
+      color: var(--text-secondary); font-family: var(--font-sans);
+    }
+    .pick-btn:hover { border-color: var(--border-hover); color: var(--text-primary); background: var(--bg-secondary); }
+    .pick-btn.selected {
+      border-color: var(--accent-600); background: var(--accent-100); color: var(--accent-600);
+    }
+    body.dark .pick-btn.selected { background: rgba(15,64,36,.25); color: var(--accent-200); border-color: var(--accent-500); }
+    .pick-number { font-family: var(--font-display); font-size: var(--text-3xl); font-weight: var(--weight-bold); line-height: 1; }
+    .pick-label  { font-size: var(--text-xs); margin-top: var(--sp1); text-align: center; white-space: nowrap; }
+    .pick-icon   { font-size: 22px; margin-bottom: var(--sp1); }
+
+    /* Toggle switch */
+    .toggle-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 0; border-bottom: 1px solid var(--border-light);
+    }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-info { flex: 1; }
+    .toggle-label { font-weight: var(--weight-medium); font-size: var(--text-base); }
+    .toggle-desc  { font-size: var(--text-sm); color: var(--text-secondary); margin-top: 2px; }
+    .switch {
+      position: relative; display: inline-block;
+      width: 44px; height: 24px; flex-shrink: 0; margin-left: var(--sp4);
+    }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .switch-track {
+      position: absolute; inset: 0;
+      background: var(--gray-300); border-radius: var(--radius-full);
+      cursor: pointer; transition: background .2s;
+    }
+    .switch-track::before {
+      content: ''; position: absolute;
+      width: 18px; height: 18px; left: 3px; top: 3px;
+      background: #fff; border-radius: var(--radius-full);
+      transition: transform .2s;
+    }
+    .switch input:checked + .switch-track { background: var(--accent-600); }
+    .switch input:checked + .switch-track::before { transform: translateX(20px); }
+
+    /* Advanced accordion */
+    .advanced-toggle {
+      display: flex; align-items: center; gap: var(--sp2);
+      cursor: pointer; color: var(--text-muted); font-size: var(--text-sm);
+      font-weight: var(--weight-medium); padding: var(--sp3) 0;
+      border: none; background: none; transition: color var(--transition);
+    }
+    .advanced-toggle:hover { color: var(--text-secondary); }
+    .advanced-toggle .adv-arrow { transition: transform .2s; font-size: var(--text-xs); }
+    .advanced-toggle.open .adv-arrow { transform: rotate(180deg); }
+    .advanced-body { display: none; padding-top: var(--sp4); }
+    .advanced-body.open { display: block; }
+
+    /* ═══════════════════════ BUTTONS ═══════════════════════ */
     .btn {
       display: inline-flex; align-items: center; gap: var(--sp2);
-      padding: 0 var(--sp4); height: 32px;
-      font-size: var(--text-sm); font-weight: var(--weight-semibold);
-      border-radius: var(--r-sm); cursor: pointer;
-      transition: var(--fast); font-family: var(--font-sans);
-      border: none; white-space: nowrap;
+      padding: 10px var(--sp5); border-radius: var(--radius-md);
+      font-family: var(--font-sans); font-size: var(--text-base);
+      font-weight: var(--weight-semibold); cursor: pointer; border: none;
+      transition: background var(--transition), transform 80ms;
     }
-
-    .btn-primary { background: var(--accent-600); color: #faf9f7; }
+    .btn:active { transform: scale(.98); }
+    .btn-primary { background: var(--accent-600); color: #fff; }
     .btn-primary:hover { background: var(--accent-700); }
-
     .btn-secondary {
       background: var(--bg-primary); color: var(--text-primary);
       border: 1px solid var(--border-default);
     }
-
-    .btn-secondary:hover { background: var(--bg-hover); border-color: var(--border-hover); }
-
-    .btn-ghost { background: none; color: var(--text-secondary); border: none; }
+    .btn-secondary:hover { background: var(--bg-secondary); }
+    .btn-ghost { background: transparent; color: var(--text-secondary); }
     .btn-ghost:hover { background: var(--bg-hover); color: var(--text-primary); }
+    .btn-danger { background: #fff1f1; color: var(--error); border: 1px solid #fde0e0; }
+    .btn-danger:hover { background: #fde0e0; }
+    body.dark .btn-danger { background: rgba(214,69,69,.12); border-color: rgba(214,69,69,.25); }
+    .btn-sm { padding: 6px 12px; font-size: var(--text-sm); }
+    .btn-full { width: 100%; justify-content: center; padding: 14px; font-size: var(--text-md); }
 
-    /* ── View container ── */
-    .view { display: none; flex: 1; flex-direction: column; }
-    .view.active { display: flex; }
-
-    /* ═══════════════════════ SCRAPER VIEW ═══════════════════════ */
-    .scraper-body {
-      padding: var(--sp8); max-width: 780px;
-      display: flex; flex-direction: column; gap: var(--sp5);
-    }
-
-    .card {
-      background: var(--bg-primary);
-      border: 1px solid var(--border-light);
-      border-radius: var(--r-lg); overflow: hidden;
-    }
-
-    .card-head {
-      padding: var(--sp3) var(--sp5);
-      background: var(--bg-secondary);
-      border-bottom: 1px solid var(--border-light);
-      font-family: var(--font-display);
-      font-size: var(--text-sm); font-weight: var(--weight-semibold);
-      color: var(--text-primary);
-      display: flex; align-items: center; gap: var(--sp2);
-    }
-
-    .card-body { padding: var(--sp5); }
-
-    .field { margin-bottom: var(--sp4); }
-    .field:last-child { margin-bottom: 0; }
-
-    .field-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp4); margin-bottom: var(--sp4); }
-    .field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--sp4); margin-bottom: var(--sp4); }
-
-    label {
-      display: block; font-size: 10px; font-weight: var(--weight-semibold);
-      text-transform: uppercase; letter-spacing: 0.6px;
-      color: var(--text-tertiary); margin-bottom: var(--sp2);
-    }
-
-    .input {
-      width: 100%; height: 34px; padding: 0 var(--sp3);
-      font-size: var(--text-base); font-family: var(--font-sans);
-      color: var(--text-primary); background: var(--bg-primary);
-      border: 1px solid var(--border-light); border-radius: var(--r-sm);
-      transition: var(--fast);
-    }
-
-    .input:hover { border-color: var(--border-hover); }
-    .input:focus { border-color: var(--border-focus); outline: none; box-shadow: 0 0 0 3px var(--accent-100); }
-
-    .input-lg { height: 44px; font-size: var(--text-md); font-family: var(--font-mono); }
-
-    select.input {
-      cursor: pointer; background: var(--bg-secondary);
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%2385837c' d='M5 7L0 2h10z'/%3E%3C/svg%3E");
-      background-repeat: no-repeat; background-position: right 10px center;
-      padding-right: 28px; appearance: none;
-    }
-
-    .hint { font-size: var(--text-xs); color: var(--text-muted); margin-top: var(--sp1); }
-
-    /* Toggle group */
-    .toggle-row { display: flex; gap: var(--sp2); flex-wrap: wrap; margin-top: var(--sp2); }
-
-    .tog {
-      padding: var(--sp1) var(--sp3); font-size: var(--text-sm);
-      font-weight: var(--weight-medium); color: var(--text-secondary);
-      border: 1px solid var(--border-light); border-radius: var(--r-full);
-      cursor: pointer; background: none; font-family: var(--font-sans);
-      transition: var(--fast);
-    }
-
-    .tog:hover { background: var(--bg-hover); border-color: var(--border-hover); color: var(--text-primary); }
-    .tog.on { background: var(--accent-100); border-color: var(--accent-200); color: var(--accent-600); font-weight: var(--weight-semibold); }
-
-    /* Check rows */
-    .check-row {
-      display: flex; gap: var(--sp3); align-items: flex-start;
-      padding: var(--sp2) 0;
-    }
-
-    .check-row input[type=checkbox] {
-      width: 15px; height: 15px; margin-top: 2px;
-      cursor: pointer; accent-color: var(--accent-600); flex-shrink: 0;
-    }
-
-    .check-label { font-size: var(--text-base); color: var(--text-primary); cursor: pointer; }
-    .check-desc  { font-size: var(--text-xs); color: var(--text-tertiary); }
-
-    /* Form footer */
-    .form-footer {
-      display: flex; gap: var(--sp3); align-items: center;
-      padding-top: var(--sp4); border-top: 1px solid var(--border-light);
-    }
-
-    /* Recent jobs mini list */
-    .job-list { border: 1px solid var(--border-light); border-radius: var(--r-lg); overflow: hidden; }
-
-    .job-row {
-      display: flex; align-items: center; gap: var(--sp4);
-      padding: var(--sp3) var(--sp4);
-      border-bottom: 1px solid var(--border-light);
-      cursor: pointer; transition: var(--fast);
-    }
-
-    .job-row:last-child { border-bottom: none; }
-    .job-row:hover { background: var(--bg-hover); }
-
-    .job-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-
-    .job-info { flex: 1; min-width: 0; }
-
-    .job-url {
-      font-family: var(--font-mono); font-size: var(--text-sm);
-      color: var(--text-primary); font-weight: var(--weight-medium);
-      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    }
-
-    .job-meta {
-      display: flex; gap: var(--sp3); align-items: center;
-      font-size: var(--text-xs); color: var(--text-tertiary); margin-top: 3px;
-    }
-
-    .job-progress { height: 3px; background: var(--bg-tertiary); border-radius: var(--r-full); overflow: hidden; margin-top: 5px; }
-    .job-progress-fill { height: 100%; border-radius: var(--r-full); transition: width .5s var(--ease); }
-
-    .job-pages { text-align: right; flex-shrink: 0; }
-    .job-pages-num { font-family: var(--font-mono); font-size: var(--text-sm); color: var(--text-secondary); }
-    .job-pages-lbl { font-size: var(--text-xs); color: var(--text-muted); }
-
-    /* ═══════════════════════ DASHBOARD VIEW ═══════════════════════ */
-    .kpi-strip {
-      display: grid; grid-template-columns: repeat(4,1fr); gap: var(--sp4);
-      padding: var(--sp5) var(--sp8);
-      background: var(--bg-primary); border-bottom: 1px solid var(--border-light);
-    }
-
-    .kpi {
-      background: var(--bg-secondary); border: 1px solid var(--border-light);
-      border-radius: var(--r-md); padding: var(--sp4) var(--sp5);
-    }
-
-    .kpi-val {
-      font-family: var(--font-display); font-size: var(--text-4xl);
-      font-weight: var(--weight-bold); line-height: 1.1;
-    }
-
-    .kpi-lbl { font-size: var(--text-sm); color: var(--text-secondary); margin-top: var(--sp1); }
-
-    .kpi-bar { height: 3px; background: var(--border-light); border-radius: var(--r-full); overflow: hidden; margin-top: var(--sp3); }
-    .kpi-fill { height: 100%; border-radius: var(--r-full); }
-
-    /* Site table */
-    .table-area { padding: var(--sp5) var(--sp8); flex: 1; }
-
-    .table-bar {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: var(--sp3);
-    }
-
-    .table-count { font-family: var(--font-mono); font-size: var(--text-sm); color: var(--text-tertiary); }
-
-    .sort-sel {
-      height: 30px; padding: 0 var(--sp3);
-      font-size: var(--text-sm); font-family: var(--font-sans);
-      color: var(--text-primary); background: var(--bg-primary);
-      border: 1px solid var(--border-light); border-radius: var(--r-sm); cursor: pointer;
-    }
-
-    .table-wrap {
-      background: var(--bg-primary); border: 1px solid var(--border-light);
-      border-radius: var(--r-lg); overflow: hidden;
-    }
-
-    /* Column layout: dot | info | progress | badge | date | sync */
-    .site-row {
-      display: grid;
-      grid-template-columns: 20px minmax(0,1fr) 140px 100px 90px 90px;
-      gap: var(--sp4); align-items: center;
-      padding: var(--sp4) var(--sp5);
-      border-bottom: 1px solid var(--border-light);
-      cursor: pointer; transition: var(--fast);
-      transform: translateX(0);
-    }
-
-    .site-row:last-child { border-bottom: none; }
-    .site-row:hover { background: var(--bg-hover); transform: translateX(2px); }
-    .site-row.is-selected { background: var(--accent-100); }
-
-    .s-dot { width: 8px; height: 8px; border-radius: 50%; justify-self: center; }
-    .s-dot-done    { background: var(--success); }
-    .s-dot-running { background: var(--info); animation: pulse 2s ease infinite; }
-    .s-dot-queued  { background: var(--gray-400); }
-    .s-dot-error   { background: var(--error); }
-
-    @keyframes pulse {
-      0%,100% { box-shadow: 0 0 0 3px rgba(59,130,246,.12); }
-      50%      { box-shadow: 0 0 0 5px rgba(59,130,246,.05); }
-    }
-
-    .s-info { min-width: 0; }
-    .s-domain { font-family: var(--font-mono); font-size: var(--text-sm); font-weight: var(--weight-medium); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .s-url    { font-size: var(--text-xs); color: var(--text-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px; }
-
-    .s-prog { min-width: 0; }
-    .s-prog-nums { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-secondary); margin-bottom: 4px; }
-    .s-prog-bar  { height: 5px; background: var(--bg-tertiary); border-radius: var(--r-full); overflow: hidden; }
-    .s-prog-fill { height: 100%; border-radius: var(--r-full); transition: width .6s var(--ease); }
-
-    .fill-done    { background: var(--success); }
-    .fill-running { background: var(--info); }
-    .fill-queued  { background: var(--gray-300); }
-    .fill-error   { background: var(--error); }
-
-    /* Badges */
+    /* ═══════════════════════ BADGES ═══════════════════════ */
     .badge {
-      display: inline-flex; align-items: center;
-      padding: 3px var(--sp2); font-size: var(--text-xs);
-      font-weight: var(--weight-semibold); text-transform: uppercase;
-      letter-spacing: .3px; border-radius: var(--r-full);
-    }
-
-    .b-done    { background: #dcfce7; color: #166534; }
-    .b-running { background: #dbeafe; color: #1e40af; }
-    .b-queued  { background: var(--bg-tertiary); color: var(--text-secondary); }
-    .b-error   { background: #fee2e2; color: #991b1b; }
-
-    .s-date { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-tertiary); }
-
-    .sync-btn {
       display: inline-flex; align-items: center; gap: 4px;
-      padding: var(--sp1) var(--sp2); font-size: var(--text-xs);
-      font-weight: var(--weight-semibold); color: var(--accent-600);
-      background: var(--accent-100); border: 1px solid var(--accent-200);
-      border-radius: var(--r-sm); cursor: pointer;
-      transition: var(--fast); font-family: var(--font-sans);
+      padding: 2px 8px; border-radius: var(--radius-full);
+      font-size: var(--text-xs); font-weight: var(--weight-semibold);
+      font-family: var(--font-display); white-space: nowrap;
+    }
+    .badge-success  { background: #d1fae5; color: #065f46; }
+    .badge-warning  { background: #fef3c7; color: #92400e; }
+    .badge-error    { background: #fee2e2; color: #991b1b; }
+    .badge-neutral  { background: var(--bg-tertiary); color: var(--text-secondary); }
+    body.dark .badge-success { background: rgba(45,157,120,.2); color: var(--accent-200); }
+    body.dark .badge-warning { background: rgba(212,148,10,.2); color: #fcd34d; }
+    body.dark .badge-error   { background: rgba(214,69,69,.2); color: #fca5a5; }
+
+    /* ═══════════════════════ PROGRESS BAR ═══════════════════════ */
+    .progress-wrap { height: 6px; background: var(--bg-tertiary); border-radius: var(--radius-full); overflow: hidden; margin-top: var(--sp2); }
+    .progress-fill { height: 100%; border-radius: var(--radius-full); background: var(--accent-600); transition: width .4s ease; }
+    .progress-fill.warning { background: var(--warning); }
+    .progress-fill.error   { background: var(--error); }
+
+    /* ═══════════════════════ SITE ROWS ═══════════════════════ */
+    .site-list { display: flex; flex-direction: column; gap: var(--sp3); }
+    .site-row {
+      background: var(--bg-primary); border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg); padding: var(--sp4) var(--sp5);
+      display: flex; align-items: flex-start; gap: var(--sp4);
+      transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+    }
+    .site-row:hover { border-color: var(--border-hover); box-shadow: var(--shadow-sm); transform: translateX(2px); }
+    .site-icon {
+      width: 40px; height: 40px; min-width: 40px;
+      border-radius: var(--radius-md); background: var(--bg-tertiary);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .site-info { flex: 1; min-width: 0; }
+    .site-name  { font-weight: var(--weight-semibold); font-size: var(--text-md); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .site-url   { font-size: var(--text-sm); color: var(--text-muted); font-family: var(--font-mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+    .site-meta  { display: flex; align-items: center; gap: var(--sp3); margin-top: var(--sp2); flex-wrap: wrap; }
+    .site-stat  { font-size: var(--text-xs); color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+    .site-actions { display: flex; gap: var(--sp2); align-items: flex-start; flex-shrink: 0; }
+
+    /* ═══════════════════════ EMPTY STATE ═══════════════════════ */
+    .empty-state {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: var(--sp12) var(--sp8);
+      text-align: center; color: var(--text-muted);
+    }
+    .empty-emoji { font-size: 56px; margin-bottom: var(--sp4); }
+    .empty-title { font-family: var(--font-display); font-size: var(--text-xl); font-weight: var(--weight-semibold); color: var(--text-secondary); margin-bottom: var(--sp2); }
+    .empty-desc  { font-size: var(--text-base); max-width: 320px; line-height: var(--leading-relaxed); }
+
+    /* ═══════════════════════ STATS BAR ═══════════════════════ */
+    .stats-bar {
+      display: flex; gap: var(--sp6); padding: var(--sp4) var(--sp8);
+      background: var(--bg-secondary); border-bottom: 1px solid var(--border-light);
+      flex-shrink: 0;
+    }
+    .stat-item { display: flex; flex-direction: column; }
+    .stat-value { font-family: var(--font-mono); font-size: var(--text-xl); font-weight: var(--weight-semibold); }
+    .stat-label { font-size: var(--text-xs); color: var(--text-muted); margin-top: 2px; }
+
+    /* Filter tabs */
+    .filter-tabs { display: flex; gap: var(--sp1); padding: var(--sp4) var(--sp8) 0; border-bottom: 1px solid var(--border-light); }
+    .filter-tab {
+      padding: var(--sp2) var(--sp4) 10px; border-bottom: 2px solid transparent;
+      font-size: var(--text-sm); font-weight: var(--weight-medium);
+      cursor: pointer; color: var(--text-muted); transition: all var(--transition);
+      border: none; background: none; margin-bottom: -1px;
+    }
+    .filter-tab:hover  { color: var(--text-primary); }
+    .filter-tab.active { color: var(--accent-600); border-bottom-color: var(--accent-600); }
+
+    /* Dashboard action row */
+    .dash-controls {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: var(--sp4) var(--sp8); flex-shrink: 0;
+    }
+    .dash-count { font-size: var(--text-sm); color: var(--text-muted); }
+
+    /* ═══════════════════════ SETTINGS ═══════════════════════ */
+    .settings-section { margin-bottom: var(--sp8); }
+    .settings-section-title {
+      font-family: var(--font-display); font-size: var(--text-lg);
+      font-weight: var(--weight-semibold); margin-bottom: var(--sp4);
+      padding-bottom: var(--sp2); border-bottom: 1px solid var(--border-light);
     }
 
-    .sync-btn:hover { background: var(--accent-200); }
-    .sync-btn:disabled { opacity: .4; cursor: not-allowed; }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .spinning { animation: spin 1s linear infinite; display: inline-block; }
-
-    /* Empty state */
-    .empty {
-      padding: 64px var(--sp8); text-align: center;
-      color: var(--text-muted); font-size: var(--text-base);
+    .connection-test {
+      display: flex; gap: var(--sp3); align-items: flex-end;
     }
+    .connection-test .input-wrap { flex: 1; }
+    .connection-result {
+      padding: var(--sp2) var(--sp3); border-radius: var(--radius-md);
+      font-size: var(--text-sm); font-weight: var(--weight-medium);
+      display: none;
+    }
+    .connection-result.success { background: #d1fae5; color: #065f46; display: block; }
+    .connection-result.error   { background: #fee2e2; color: #991b1b; display: block; }
 
-    /* ═══════════════════════ DETAIL PANEL ═══════════════════════ */
+    /* ═══════════════════════ PANEL (detail slide-in) ═══════════════════════ */
+    .panel-overlay {
+      position: fixed; inset: 0; background: rgba(35,34,31,.35);
+      opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 50;
+    }
+    .panel-overlay.open { opacity: 1; pointer-events: all; }
     .panel {
-      position: fixed; top: 0; right: 0; bottom: 0;
-      width: var(--panel-w);
-      background: var(--bg-primary);
-      border-left: 1px solid var(--border-light);
-      box-shadow: var(--shadow-lg);
-      z-index: 40; overflow-y: auto;
-      transform: translateX(100%);
-      transition: transform var(--base);
+      position: fixed; top: 0; right: 0; bottom: 0; width: 420px;
+      background: var(--bg-primary); border-left: 1px solid var(--border-light);
+      box-shadow: var(--shadow-lg); transform: translateX(100%);
+      transition: transform .2s cubic-bezier(.16,1,.3,1); z-index: 51;
+      display: flex; flex-direction: column; overflow: hidden;
     }
-
     .panel.open { transform: translateX(0); }
-
-    .panel-crumb {
-      display: flex; align-items: center; gap: var(--sp2);
-      padding: var(--sp3) var(--sp4);
-      font-size: var(--text-xs); color: var(--text-tertiary);
-      border-bottom: 1px solid var(--border-light);
+    .panel-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: var(--sp5) var(--sp6); border-bottom: 1px solid var(--border-light);
+      flex-shrink: 0;
     }
+    .panel-title { font-family: var(--font-display); font-size: var(--text-xl); font-weight: var(--weight-bold); }
+    .panel-body  { flex: 1; overflow-y: auto; padding: var(--sp6); }
+    .panel-field { margin-bottom: var(--sp5); }
+    .panel-field-label { font-size: var(--text-xs); font-weight: var(--weight-semibold); text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); margin-bottom: var(--sp1); }
+    .panel-field-value { font-size: var(--text-base); color: var(--text-primary); font-family: var(--font-mono); word-break: break-all; }
 
-    .panel-crumb-close {
-      margin-left: auto; font-size: var(--text-xl); line-height: 1;
-      color: var(--text-muted); background: none; border: none;
-      cursor: pointer; transition: var(--fast);
+    /* ═══════════════════════ NOTIFICATION ═══════════════════════ */
+    .toast {
+      position: fixed; bottom: var(--sp6); right: var(--sp6); z-index: 100;
+      background: var(--gray-900); color: #fff;
+      padding: var(--sp3) var(--sp5); border-radius: var(--radius-md);
+      font-size: var(--text-sm); font-weight: var(--weight-medium);
+      box-shadow: var(--shadow-lg); opacity: 0; transform: translateY(8px);
+      transition: opacity .2s, transform .2s; pointer-events: none;
     }
-
-    .panel-crumb-close:hover { color: var(--text-primary); }
-
-    .panel-body { padding: var(--sp5); }
-
-    .panel-domain { font-family: var(--font-mono); font-size: var(--text-xl); font-weight: var(--weight-semibold); }
-    .panel-url { font-size: var(--text-xs); color: var(--text-tertiary); margin-top: 4px; word-break: break-all; margin-bottom: var(--sp4); }
-
-    .panel-badges { display: flex; flex-wrap: wrap; gap: var(--sp2); margin-bottom: var(--sp5); }
-
-    .metrics-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: var(--sp3); margin-bottom: var(--sp5); }
-
-    .metric {
-      background: var(--bg-secondary); border: 1px solid var(--border-light);
-      border-radius: var(--r-md); padding: var(--sp3);
-    }
-
-    .metric-val { font-family: var(--font-mono); font-size: var(--text-xl); font-weight: var(--weight-semibold); }
-    .metric-lbl { font-size: var(--text-xs); color: var(--text-tertiary); margin-top: 2px; }
-
-    .panel-divider { height: 1px; background: var(--border-light); margin: var(--sp4) 0; }
-
-    .panel-label {
-      font-size: 10px; font-weight: var(--weight-semibold);
-      text-transform: uppercase; letter-spacing: .6px;
-      color: var(--text-tertiary); margin-bottom: var(--sp3);
-    }
-
-    .big-progress { height: 8px; background: var(--bg-tertiary); border-radius: var(--r-full); overflow: hidden; margin: var(--sp2) 0; }
-    .big-progress-fill { height: 100%; border-radius: var(--r-full); transition: width .6s var(--ease); }
-    .big-progress-labels { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-tertiary); }
-
-    .log-list { display: flex; flex-direction: column; gap: var(--sp2); }
-    .log-row { display: flex; gap: var(--sp3); font-size: var(--text-xs); }
-    .log-time { font-family: var(--font-mono); color: var(--text-muted); width: 50px; flex-shrink: 0; }
-    .log-text { color: var(--text-secondary); line-height: var(--leading-relaxed); }
-    .log-text.ok   { color: var(--success); }
-    .log-text.info { color: var(--info); }
-    .log-text.warn { color: var(--warning); }
-
-    .panel-actions { display: flex; flex-direction: column; gap: var(--sp2); margin-top: var(--sp5); }
-
-    .panel-btn {
-      width: 100%; height: 36px;
-      display: flex; align-items: center; justify-content: center; gap: var(--sp2);
-      font-size: var(--text-sm); font-weight: var(--weight-semibold);
-      border-radius: var(--r-sm); cursor: pointer;
-      font-family: var(--font-sans); transition: var(--fast);
-    }
-
-    .pb-primary { background: var(--accent-600); color: #faf9f7; border: none; }
-    .pb-primary:hover { background: var(--accent-700); }
-    .pb-primary:disabled { opacity: .4; cursor: not-allowed; }
-
-    .pb-secondary { background: transparent; color: var(--text-primary); border: 1px solid var(--border-default); }
-    .pb-secondary:hover { background: var(--bg-hover); }
-
-    .pb-danger { background: transparent; color: var(--error); border: 1px solid #fee2e2; }
-    .pb-danger:hover { background: #fee2e2; }
+    body.dark .toast { background: var(--gray-50); color: var(--gray-900); }
+    .toast.show { opacity: 1; transform: translateY(0); }
 
     /* ═══════════════════════ RESPONSIVE ═══════════════════════ */
-    .hamburger {
-      display: none; position: fixed; top: 13px; left: var(--sp4);
-      z-index: 60; width: 32px; height: 32px;
-      align-items: center; justify-content: center;
-      background: var(--bg-primary); border: 1px solid var(--border-light);
-      border-radius: var(--r-md); cursor: pointer; font-size: 14px;
-    }
-
-    @media (max-width: 1200px) {
-      :root { --sidebar-w: 200px; --panel-w: 360px; }
-      .site-row { grid-template-columns: 20px minmax(0,1fr) 120px 90px 80px 80px; }
-    }
-
     @media (max-width: 960px) {
-      .sidebar { transform: translateX(-100%); }
-      .sidebar.open { transform: translateX(0); }
-      .main { margin-left: 0; }
-      .main.has-panel { margin-right: 0; }
-      .hamburger { display: flex; }
-      .topbar { padding-left: 52px; }
-      .panel { width: 100%; }
-      .kpi-strip { grid-template-columns: 1fr 1fr; }
+      .sidebar { position: fixed; top: 0; bottom: 0; left: 0; transform: translateX(-100%); }
+      .sidebar.mobile-open { transform: translateX(0); }
+      .mobile-overlay { position: fixed; inset: 0; background: rgba(35,34,31,.5); z-index: 9; display: none; }
+      .mobile-overlay.open { display: block; }
+      .mobile-menu-btn { display: flex !important; }
+      .view-header { padding: var(--sp5) var(--sp4) var(--sp4); }
+      .view-body { padding: var(--sp4); }
+      .stats-bar { gap: var(--sp4); padding: var(--sp3) var(--sp4); flex-wrap: wrap; }
+      .filter-tabs { padding: var(--sp3) var(--sp4) 0; }
+      .dash-controls { padding: var(--sp3) var(--sp4); }
     }
+    .mobile-menu-btn { display: none !important; }
 
-    @media (max-width: 640px) {
-      :root { --text-base: 13px; }
-      .scraper-body, .table-area, .kpi-strip { padding-left: var(--sp4); padding-right: var(--sp4); }
-      .field-row-2, .field-row-3 { grid-template-columns: 1fr; }
-      .site-row { grid-template-columns: 20px minmax(0,1fr) 80px; }
-      .site-row > *:nth-child(3),
-      .site-row > *:nth-child(5) { display: none; }
-    }
+    /* Animations */
+    @keyframes slideUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+    .site-row { animation: slideUp .3s ease-out both; }
 
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(10px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 3px; }
 
-    .su { animation: slideUp 360ms var(--ease) both; }
+    /* separator */
+    .sep { height: 1px; background: var(--border-light); margin: var(--sp4) 0; }
   </style>
 </head>
 <body>
 
-<!-- ═══════ SIDEBAR ═══════ -->
-<aside class="sidebar" id="sidebar">
-  <div class="sidebar-brand">
-    <div class="brand-mark">C4</div>
-    <span class="brand-name">Crawl4AI</span>
-    <span class="brand-version">v0.4</span>
-  </div>
+<!-- ═══════════ MOBILE OVERLAY ═══════════ -->
+<div class="mobile-overlay" id="mobileOverlay" onclick="closeMobileMenu()"></div>
 
-  <!-- Nav — always visible -->
-  <div class="sidebar-section">Menu</div>
-  <nav class="nav">
-    <div class="nav-item active" id="nav-scraper" onclick="showView('scraper')">
-      <span class="nav-icon">⬡</span> Scraper
+<!-- ═══════════ LAYOUT ═══════════ -->
+<div class="layout">
+
+  <!-- ══════════ SIDEBAR ══════════ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo">C</div>
+      <div class="brand-text">
+        <div class="brand-name">Crawl4Noobs</div>
+        <div class="brand-tag">Web Scraper — No code</div>
+      </div>
     </div>
-    <div class="nav-item" id="nav-dashboard" onclick="showView('dashboard')">
-      <span class="nav-icon">◫</span> Dashboard
-      <span class="nav-badge" id="nav-running-badge">0</span>
+
+    <nav class="nav-section">
+      <div class="nav-label">Menu</div>
+      <button class="nav-item active" id="nav-scrape" onclick="showView('scrape')">
+        <span class="nav-icon">✨</span>
+        <span class="nav-text">New Scrape</span>
+      </button>
+      <button class="nav-item" id="nav-dashboard" onclick="showView('dashboard')">
+        <span class="nav-icon">📂</span>
+        <span class="nav-text">My Scrapes</span>
+      </button>
+      <button class="nav-item" id="nav-settings" onclick="showView('settings')">
+        <span class="nav-icon">⚙️</span>
+        <span class="nav-text">Settings</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="server-status" id="serverStatus" title="Crawl4AI server connection">
+        <div class="status-dot checking" id="statusDot"></div>
+        <span id="statusText">Checking server…</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:var(--sp1) var(--sp1) 0;">
+        <button class="icon-btn" onclick="toggleDark()" title="Toggle dark mode">🌙</button>
+        <button class="icon-btn" onclick="toggleSidebar()" title="Collapse sidebar" id="collapseBtn">◀</button>
+      </div>
     </div>
-  </nav>
+  </aside>
 
-  <div class="sidebar-divider"></div>
+  <!-- ══════════ MAIN ══════════ -->
+  <main class="main">
 
-  <!-- Mini stats — always visible -->
-  <div class="sidebar-section" style="padding-bottom: var(--sp2)">Stats</div>
-  <div class="mini-stats">
-    <div class="mini-stat">
-      <div class="mini-stat-val" id="sb-total">0</div>
-      <div class="mini-stat-lbl">Total</div>
-    </div>
-    <div class="mini-stat">
-      <div class="mini-stat-val" style="color:var(--info)" id="sb-running">0</div>
-      <div class="mini-stat-lbl">Running</div>
-    </div>
-    <div class="mini-stat">
-      <div class="mini-stat-val" style="color:var(--success)" id="sb-done">0</div>
-      <div class="mini-stat-lbl">Finished</div>
-    </div>
-    <div class="mini-stat">
-      <div class="mini-stat-val" style="color:var(--gray-400)" id="sb-queued">0</div>
-      <div class="mini-stat-lbl">Queued</div>
-    </div>
-  </div>
+    <!-- ── NEW SCRAPE VIEW ── -->
+    <div class="view active" id="view-scrape">
+      <div class="view-header">
+        <div style="display:flex;align-items:center;gap:var(--sp3);">
+          <button class="icon-btn mobile-menu-btn" onclick="openMobileMenu()">☰</button>
+          <div>
+            <div class="view-title">New Scrape</div>
+            <div class="view-subtitle">Tell us what website you want to save — we'll handle the rest.</div>
+          </div>
+        </div>
+      </div>
 
-  <div class="sidebar-divider"></div>
+      <div class="view-body">
+        <div style="max-width:680px;">
 
-  <!-- Filters — visible in dashboard context -->
-  <div id="dashboard-filters" style="display:none">
-    <div class="sidebar-section">Filter</div>
-    <div class="sidebar-search">
-      <input class="search-input" type="text" placeholder="Search domains…" oninput="onSearch(this.value)" id="searchInput">
-    </div>
-    <div style="padding: 0 var(--sp2) var(--sp2)">
-      <div class="filter-pill active" id="fp-all"     onclick="setFilter('all',this)">All <span class="pill-count" id="fc-all">0</span></div>
-      <div class="filter-pill"        id="fp-done"    onclick="setFilter('done',this)">Finished <span class="pill-count" id="fc-done">0</span></div>
-      <div class="filter-pill"        id="fp-running" onclick="setFilter('running',this)">In Progress <span class="pill-count" id="fc-running">0</span></div>
-      <div class="filter-pill"        id="fp-queued"  onclick="setFilter('queued',this)">Not Started <span class="pill-count" id="fc-queued">0</span></div>
-    </div>
-  </div>
+          <!-- URL -->
+          <div class="card">
+            <div class="card-title">Where should we look?</div>
+            <div class="card-subtitle">Paste the web address of the page or website you want to scrape.</div>
+            <div class="field">
+              <label class="field-label" for="inp-url">Website address</label>
+              <input class="input" id="inp-url" type="url" placeholder="https://docs.example.com/guide" autocomplete="off" spellcheck="false">
+            </div>
+            <div class="field" style="margin-bottom:0;">
+              <label class="field-label" for="inp-name">Give it a name <span style="font-weight:400;color:var(--text-muted)">(optional)</span></label>
+              <input class="input" id="inp-name" type="text" placeholder="e.g. Python Docs, My Blog Archive…">
+            </div>
+          </div>
 
-  <div class="sidebar-footer">
-    <button class="theme-btn" onclick="toggleDark()">
-      <span id="theme-icon">☽</span> <span id="theme-label">Dark mode</span>
-    </button>
-  </div>
-</aside>
+          <!-- Depth -->
+          <div class="card">
+            <div class="card-title">How far should we go?</div>
+            <div class="card-subtitle">Should we grab just this one page, or follow links to discover more?</div>
+            <div class="picker" id="picker-depth">
+              <button class="pick-btn selected" data-val="1" onclick="selectPick('depth',this)">
+                <span class="pick-number">1</span>
+                <span class="pick-label">Just this page</span>
+              </button>
+              <button class="pick-btn" data-val="2" onclick="selectPick('depth',this)">
+                <span class="pick-number">2</span>
+                <span class="pick-label">One level deep</span>
+              </button>
+              <button class="pick-btn" data-val="3" onclick="selectPick('depth',this)">
+                <span class="pick-number">3</span>
+                <span class="pick-label">Two levels deep</span>
+              </button>
+              <button class="pick-btn" data-val="5" onclick="selectPick('depth',this)">
+                <span class="pick-number">5</span>
+                <span class="pick-label">Go deep</span>
+              </button>
+            </div>
+          </div>
 
-<!-- Mobile hamburger -->
-<button class="hamburger" onclick="toggleSidebar()">☰</button>
+          <!-- Format -->
+          <div class="card">
+            <div class="card-title">How do you want the result?</div>
+            <div class="card-subtitle">This is the file format your scraped content will be saved in.</div>
+            <div class="picker" id="picker-format">
+              <button class="pick-btn selected" data-val="markdown" onclick="selectPick('format',this)">
+                <span class="pick-icon">📝</span>
+                <span class="pick-label">Markdown</span>
+              </button>
+              <button class="pick-btn" data-val="json" onclick="selectPick('format',this)">
+                <span class="pick-icon">📦</span>
+                <span class="pick-label">JSON</span>
+              </button>
+              <button class="pick-btn" data-val="html" onclick="selectPick('format',this)">
+                <span class="pick-icon">🌐</span>
+                <span class="pick-label">HTML</span>
+              </button>
+              <button class="pick-btn" data-val="text" onclick="selectPick('format',this)">
+                <span class="pick-icon">📄</span>
+                <span class="pick-label">Plain Text</span>
+              </button>
+            </div>
+          </div>
 
-<!-- ═══════ MAIN ═══════ -->
-<main class="main" id="main">
+          <!-- Speed -->
+          <div class="card">
+            <div class="card-title">How fast should we go?</div>
+            <div class="card-subtitle">Faster uses more of your computer. Slower is gentler on the website.</div>
+            <div class="picker" id="picker-speed">
+              <button class="pick-btn" data-val="1" onclick="selectPick('speed',this)">
+                <span class="pick-icon">🐢</span>
+                <span class="pick-label">Slow &amp; gentle</span>
+              </button>
+              <button class="pick-btn selected" data-val="3" onclick="selectPick('speed',this)">
+                <span class="pick-icon">🚗</span>
+                <span class="pick-label">Normal</span>
+              </button>
+              <button class="pick-btn" data-val="8" onclick="selectPick('speed',this)">
+                <span class="pick-icon">🚀</span>
+                <span class="pick-label">Fast</span>
+              </button>
+            </div>
+          </div>
 
-  <!-- Top bar -->
-  <div class="topbar">
-    <div class="topbar-title" id="topbar-title">New Scrape Job</div>
-    <div class="topbar-actions" id="topbar-actions">
-      <!-- filled by showView() -->
-    </div>
-  </div>
+          <!-- Options -->
+          <div class="card">
+            <div class="card-title">Quick options</div>
+            <div class="card-subtitle">Flip these on or off to control how scraping works.</div>
 
-  <!-- ──────── SCRAPER VIEW ──────── -->
-  <div class="view active" id="view-scraper">
-    <div class="scraper-body">
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <div class="toggle-label">Load interactive content</div>
+                <div class="toggle-desc">Turn this on for websites that use a lot of animations or React/Vue apps.</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="opt-js" checked>
+                <span class="switch-track"></span>
+              </label>
+            </div>
 
-      <!-- URL -->
-      <div class="card su" style="animation-delay:0ms">
-        <div class="card-head">🌐 Target URL</div>
-        <div class="card-body">
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <div class="toggle-label">Stay on the same website</div>
+                <div class="toggle-desc">Only follow links that belong to this website — don't wander off to others.</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="opt-same-domain" checked>
+                <span class="switch-track"></span>
+              </label>
+            </div>
+
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <div class="toggle-label">Remember where we stopped</div>
+                <div class="toggle-desc">If scraping stops unexpectedly, pick up from where we left off next time.</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="opt-resume" checked>
+                <span class="switch-track"></span>
+              </label>
+            </div>
+
+            <!-- Advanced -->
+            <div class="sep"></div>
+            <button class="advanced-toggle" id="advToggle" onclick="toggleAdvanced()">
+              <span>Advanced options</span>
+              <span class="adv-arrow">▼</span>
+            </button>
+            <div class="advanced-body" id="advBody">
+              <div class="field">
+                <label class="field-label" for="opt-maxpages">Maximum pages to grab</label>
+                <div class="field-hint">Leave blank to grab everything. Set a number to cap it (useful for big sites).</div>
+                <input class="input" id="opt-maxpages" type="number" min="1" placeholder="e.g. 100">
+              </div>
+              <div class="field" style="margin-bottom:0;">
+                <label class="field-label" for="opt-prefix">Only follow links that start with</label>
+                <div class="field-hint">Leave blank to follow all links on this domain. Or enter a path like <code style="font-family:var(--font-mono);background:var(--bg-tertiary);padding:1px 4px;border-radius:3px;">/docs/</code> to stay in one section.</div>
+                <input class="input" id="opt-prefix" type="text" placeholder="/docs/">
+              </div>
+            </div>
+          </div>
+
+          <!-- Save path override -->
+          <div class="card">
+            <div class="card-title">Where should the file be saved?</div>
+            <div class="card-subtitle">Leave this blank to use your default save folder from Settings.</div>
+            <input class="input" id="inp-output" type="text" placeholder="Leave blank to use default…">
+          </div>
+
+          <!-- Submit -->
+          <button class="btn btn-primary btn-full" onclick="startScrape()">
+            <span>▶</span> Start Scraping
+          </button>
+          <p style="text-align:center;font-size:var(--text-sm);color:var(--text-muted);margin-top:var(--sp3);">
+            Make sure Crawl4AI is running before you start. <button onclick="showView('settings')" style="background:none;border:none;color:var(--accent-600);cursor:pointer;font-size:inherit;padding:0;font-family:inherit;">Check settings →</button>
+          </p>
+
+        </div><!-- /max-width -->
+      </div><!-- /view-body -->
+    </div><!-- /view-scrape -->
+
+
+    <!-- ── MY SCRAPES VIEW ── -->
+    <div class="view" id="view-dashboard">
+      <div class="view-header">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:var(--sp3);">
+            <button class="icon-btn mobile-menu-btn" onclick="openMobileMenu()">☰</button>
+            <div>
+              <div class="view-title">My Scrapes</div>
+              <div class="view-subtitle">All websites you've set up to scrape.</div>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="syncAll()">↻ Sync all</button>
+        </div>
+      </div>
+
+      <div class="stats-bar" id="statsBar">
+        <div class="stat-item">
+          <div class="stat-value" id="stat-total">0</div>
+          <div class="stat-label">Total sites</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="stat-done" style="color:var(--success)">0</div>
+          <div class="stat-label">Done</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="stat-running" style="color:var(--warning)">0</div>
+          <div class="stat-label">Running</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="stat-waiting">0</div>
+          <div class="stat-label">Waiting</div>
+        </div>
+      </div>
+
+      <div class="filter-tabs">
+        <button class="filter-tab active" data-filter="all"    onclick="setFilter('all',this)">All</button>
+        <button class="filter-tab"        data-filter="done"   onclick="setFilter('done',this)">Done</button>
+        <button class="filter-tab"        data-filter="running"onclick="setFilter('running',this)">Running</button>
+        <button class="filter-tab"        data-filter="waiting"onclick="setFilter('waiting',this)">Waiting</button>
+      </div>
+
+      <div class="dash-controls">
+        <span class="dash-count" id="dashCount">No sites yet</span>
+      </div>
+
+      <div style="flex:1;overflow-y:auto;padding:0 var(--sp8) var(--sp8);" id="dashScroll">
+        <div class="site-list" id="siteList"></div>
+      </div>
+    </div><!-- /view-dashboard -->
+
+
+    <!-- ── SETTINGS VIEW ── -->
+    <div class="view" id="view-settings">
+      <div class="view-header">
+        <div style="display:flex;align-items:center;gap:var(--sp3);">
+          <button class="icon-btn mobile-menu-btn" onclick="openMobileMenu()">☰</button>
+          <div>
+            <div class="view-title">Settings</div>
+            <div class="view-subtitle">Configure where files are saved and how scraping behaves.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="view-body" style="max-width:640px;">
+
+        <!-- Server -->
+        <div class="settings-section">
+          <div class="settings-section-title">🔌 Server Connection</div>
           <div class="field">
-            <label for="url">URL to scrape</label>
-            <input class="input input-lg" id="url" type="url" placeholder="https://example.com/docs">
-            <div class="hint">Sub-pages are auto-discovered based on depth settings.</div>
+            <label class="field-label" for="cfg-api">Crawl4AI server address</label>
+            <div class="field-hint">This is where Crawl4AI is running on your computer. You usually don't need to change this.</div>
+            <div class="connection-test">
+              <div class="input-wrap">
+                <input class="input" id="cfg-api" type="text" value="http://localhost:11235" spellcheck="false">
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="testConnection()">Test</button>
+            </div>
+            <div class="connection-result" id="connResult"></div>
           </div>
         </div>
-      </div>
 
-      <!-- Crawl options -->
-      <div class="card su" style="animation-delay:50ms">
-        <div class="card-head">⚙ Crawl Options</div>
-        <div class="card-body">
-          <div class="field-row-3">
-            <div>
-              <label for="depth">Depth</label>
-              <select class="input" id="depth">
-                <option>1 — Surface</option>
-                <option selected>2 — One level</option>
-                <option>3 — Two levels</option>
-                <option>5 — Deep</option>
-                <option>Unlimited</option>
-              </select>
-            </div>
-            <div>
-              <label for="maxpages">Max Pages</label>
-              <input class="input" id="maxpages" type="number" value="200">
-            </div>
-            <div>
-              <label for="concurrency">Concurrency</label>
-              <select class="input" id="concurrency">
-                <option>1 — Sequential</option>
-                <option selected>5 — Default</option>
-                <option>10 — Aggressive</option>
-                <option>20 — Max</option>
-              </select>
-            </div>
-          </div>
-
+        <!-- Save location -->
+        <div class="settings-section">
+          <div class="settings-section-title">📁 Where Files Are Saved</div>
           <div class="field">
-            <label>Output Format</label>
-            <div class="toggle-row" id="fmt-group">
-              <button class="tog on" onclick="pickFmt(this)">Markdown</button>
-              <button class="tog"    onclick="pickFmt(this)">JSON</button>
-              <button class="tog"    onclick="pickFmt(this)">HTML</button>
-              <button class="tog"    onclick="pickFmt(this)">Plain Text</button>
-            </div>
-          </div>
-
-          <div class="field-row-2" style="margin-bottom:0">
-            <div>
-              <label for="include">Include Patterns</label>
-              <input class="input" id="include" placeholder="/docs/, /api/">
-              <div class="hint">Comma-separated path patterns</div>
-            </div>
-            <div>
-              <label for="exclude">Exclude Patterns</label>
-              <input class="input" id="exclude" placeholder="/blog/, /login">
-              <div class="hint">Comma-separated path patterns</div>
-            </div>
+            <label class="field-label" for="cfg-output">Default save folder</label>
+            <div class="field-hint">All scraped content will be saved here unless you choose a different folder per scrape.</div>
+            <input class="input" id="cfg-output" type="text" placeholder="./output">
           </div>
         </div>
-      </div>
 
-      <!-- Advanced -->
-      <div class="card su" style="animation-delay:100ms">
-        <div class="card-head">🔧 Advanced Options</div>
-        <div class="card-body">
-          <div class="field-row-2">
-            <div>
-              <label for="delay">Request Delay (ms)</label>
-              <input class="input" id="delay" type="number" value="500">
-            </div>
-            <div>
-              <label for="timeout">Page Timeout (s)</label>
-              <input class="input" id="timeout" type="number" value="30">
-            </div>
-          </div>
-
-          <div class="check-row">
-            <input type="checkbox" id="opt-js" checked>
-            <div>
-              <div class="check-label" onclick="document.getElementById('opt-js').click()">Execute JavaScript</div>
-              <div class="check-desc">Required for SPAs and dynamic content</div>
-            </div>
-          </div>
-          <div class="check-row">
-            <input type="checkbox" id="opt-sitemap" checked>
-            <div>
-              <div class="check-label" onclick="document.getElementById('opt-sitemap').click()">Use Sitemap</div>
-              <div class="check-desc">Auto-discover via sitemap.xml if available</div>
+        <!-- Defaults -->
+        <div class="settings-section">
+          <div class="settings-section-title">🛠 Default Options</div>
+          <div class="field">
+            <label class="field-label">Default file format</label>
+            <div class="field-hint">This format will be pre-selected whenever you start a new scrape.</div>
+            <div class="picker" id="picker-cfg-format" style="margin-top:var(--sp2);">
+              <button class="pick-btn selected" data-val="markdown" onclick="selectPick('cfg-format',this)">
+                <span class="pick-icon">📝</span><span class="pick-label">Markdown</span>
+              </button>
+              <button class="pick-btn" data-val="json" onclick="selectPick('cfg-format',this)">
+                <span class="pick-icon">📦</span><span class="pick-label">JSON</span>
+              </button>
+              <button class="pick-btn" data-val="html" onclick="selectPick('cfg-format',this)">
+                <span class="pick-icon">🌐</span><span class="pick-label">HTML</span>
+              </button>
+              <button class="pick-btn" data-val="text" onclick="selectPick('cfg-format',this)">
+                <span class="pick-icon">📄</span><span class="pick-label">Plain Text</span>
+              </button>
             </div>
           </div>
-          <div class="check-row">
-            <input type="checkbox" id="opt-robots">
-            <div>
-              <div class="check-label" onclick="document.getElementById('opt-robots').click()">Respect robots.txt</div>
-              <div class="check-desc">Skip pages disallowed by robots.txt</div>
+          <div class="field">
+            <label class="field-label">Default depth</label>
+            <div class="field-hint">How far to follow links by default on a new scrape.</div>
+            <div class="picker" id="picker-cfg-depth" style="margin-top:var(--sp2);">
+              <button class="pick-btn selected" data-val="1" onclick="selectPick('cfg-depth',this)">
+                <span class="pick-number">1</span><span class="pick-label">Just this page</span>
+              </button>
+              <button class="pick-btn" data-val="2" onclick="selectPick('cfg-depth',this)">
+                <span class="pick-number">2</span><span class="pick-label">One level</span>
+              </button>
+              <button class="pick-btn" data-val="3" onclick="selectPick('cfg-depth',this)">
+                <span class="pick-number">3</span><span class="pick-label">Two levels</span>
+              </button>
+              <button class="pick-btn" data-val="5" onclick="selectPick('cfg-depth',this)">
+                <span class="pick-number">5</span><span class="pick-label">Go deep</span>
+              </button>
             </div>
           </div>
-          <div class="check-row">
-            <input type="checkbox" id="opt-dedup" checked>
-            <div>
-              <div class="check-label" onclick="document.getElementById('opt-dedup').click()">Deduplicate Content</div>
-              <div class="check-desc">Skip near-duplicate pages</div>
-            </div>
-          </div>
-
-          <div class="field" style="margin-top:var(--sp4)">
-            <label for="selector">Content Selector (CSS)</label>
-            <input class="input" id="selector" placeholder="main, article, .content">
-            <div class="hint">Extract only the matching element. Leave blank for full page.</div>
+          <div class="field">
+            <label class="field-label" for="cfg-maxpages">Default max pages</label>
+            <div class="field-hint">Leave blank to always scrape everything. Enter a number to cap it.</div>
+            <input class="input" id="cfg-maxpages" type="number" min="1" placeholder="Unlimited" style="max-width:180px;">
           </div>
         </div>
-      </div>
 
-      <!-- Actions -->
-      <div class="form-footer su" style="animation-delay:150ms">
-        <button class="btn btn-primary" onclick="startCrawl()">▶ Start Crawl</button>
-        <button class="btn btn-secondary" onclick="addToQueue()">+ Add to Queue</button>
-        <button class="btn btn-ghost" onclick="resetForm()" style="margin-left:auto">Reset</button>
-      </div>
+        <!-- Save button -->
+        <button class="btn btn-primary" onclick="saveConfig()" style="min-width:160px;">
+          💾 Save Settings
+        </button>
 
-      <!-- Recent jobs -->
-      <div class="su" style="animation-delay:200ms">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:var(--sp3)">
-          <h3 style="font-size:var(--text-xl)">Recent Jobs</h3>
-          <span style="font-size:var(--text-sm); color:var(--text-accent); cursor:pointer" onclick="showView('dashboard')">View all →</span>
-        </div>
-        <div class="job-list" id="recent-jobs"></div>
-      </div>
+        <!-- About -->
+        <div class="sep" style="margin-top:var(--sp8);"></div>
+        <p style="font-size:var(--text-sm);color:var(--text-muted);line-height:var(--leading-relaxed);">
+          Crawl4Noobs is a no-code interface for <strong>Crawl4AI</strong> — the open-source web scraping engine.
+          You still need to run Crawl4AI locally (via Docker). This tool just makes it easy to configure and run scrapes without touching the command line.<br><br>
+          <a href="https://github.com/unclecode/crawl4ai" target="_blank" style="color:var(--accent-600);text-decoration:none;">crawl4ai on GitHub ↗</a>
+          &nbsp;·&nbsp;
+          <a href="https://github.com/alraisi/Crawl4Noobs" target="_blank" style="color:var(--accent-600);text-decoration:none;">Crawl4Noobs on GitHub ↗</a>
+        </p>
 
-    </div>
+      </div>
+    </div><!-- /view-settings -->
+
+  </main><!-- /main -->
+</div><!-- /layout -->
+
+<!-- ═══════════ DETAIL PANEL ═══════════ -->
+<div class="panel-overlay" id="panelOverlay" onclick="closePanel()"></div>
+<div class="panel" id="detailPanel">
+  <div class="panel-header">
+    <div class="panel-title" id="panelTitle">Site Details</div>
+    <button class="icon-btn" onclick="closePanel()">✕</button>
   </div>
+  <div class="panel-body" id="panelBody"></div>
+</div>
 
-  <!-- ──────── DASHBOARD VIEW ──────── -->
-  <div class="view" id="view-dashboard">
+<!-- ═══════════ TOAST ═══════════ -->
+<div class="toast" id="toast"></div>
 
-    <!-- KPI strip -->
-    <div class="kpi-strip">
-      <div class="kpi">
-        <div class="kpi-val" id="kpi-total">0</div>
-        <div class="kpi-lbl">Total Sites</div>
-        <div class="kpi-bar"><div class="kpi-fill" style="width:0%;background:var(--gray-300)"></div></div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-val" style="color:var(--success)" id="kpi-done">0</div>
-        <div class="kpi-lbl">Finished</div>
-        <div class="kpi-bar"><div class="kpi-fill fill-done" id="kpi-done-bar" style="width:0%"></div></div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-val" style="color:var(--info)" id="kpi-running">0</div>
-        <div class="kpi-lbl">In Progress</div>
-        <div class="kpi-bar"><div class="kpi-fill fill-running" id="kpi-running-bar" style="width:0%"></div></div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-val" style="color:var(--gray-400)" id="kpi-queued">0</div>
-        <div class="kpi-lbl">Not Started</div>
-        <div class="kpi-bar"><div class="kpi-fill fill-queued" id="kpi-queued-bar" style="width:0%"></div></div>
-      </div>
-    </div>
-
-    <!-- Table -->
-    <div class="table-area">
-      <div class="table-bar">
-        <div class="table-count" id="table-count">14 sites</div>
-        <select class="sort-sel" onchange="sortSites(this.value)">
-          <option value="recent">Most Recent</option>
-          <option value="name">Domain A–Z</option>
-          <option value="pages">Most Pages</option>
-          <option value="status">By Status</option>
-        </select>
-      </div>
-      <div class="table-wrap" id="sites-table"></div>
-    </div>
-
-  </div>
-
-</main>
-
-<!-- ═══════ DETAIL PANEL ═══════ -->
-<aside class="panel" id="panel">
-  <div class="panel-crumb">
-    <span>Dashboard</span> <span>›</span>
-    <span id="panel-crumb-label">—</span>
-    <button class="panel-crumb-close" onclick="closePanel()">×</button>
-  </div>
-  <div class="panel-body" id="panel-body"></div>
-</aside>
-
-<!-- ═══════ SCRIPT ═══════ -->
 <script>
-// ── Data ──────────────────────────────────────────────────────
-const sites = [];
-// Sites are added at runtime via "Start Crawl" or "Add to Queue".
+  // ─── State ────────────────────────────────────────────────────────────────
+  let sites    = JSON.parse(localStorage.getItem('c4n_sites')    || '[]');
+  let cfg      = JSON.parse(localStorage.getItem('c4n_config')   || '{}');
+  let curFilter = 'all';
+  let picks    = { depth: '1', format: 'markdown', speed: '3', 'cfg-format': 'markdown', 'cfg-depth': '1' };
 
-let currentFilter = 'all';
-let currentSearch  = '';
-let selectedId     = null;
-
-// ── Routing ───────────────────────────────────────────────────
-function showView(name) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.getElementById('view-' + name).classList.add('active');
-
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('nav-' + name).classList.add('active');
-
-  const filters = document.getElementById('dashboard-filters');
-  const topbarTitle   = document.getElementById('topbar-title');
-  const topbarActions = document.getElementById('topbar-actions');
-
-  if (name === 'scraper') {
-    filters.style.display = 'none';
-    topbarTitle.textContent = 'New Scrape Job';
-    topbarActions.innerHTML = `<button class="btn btn-ghost" onclick="resetForm()">Reset form</button>`;
-    renderRecentJobs();
-  } else {
-    filters.style.display = 'block';
-    topbarTitle.textContent = 'Dashboard';
-    topbarActions.innerHTML = `
-      <button class="btn btn-secondary" onclick="syncAll()">↻ Sync All</button>
-      <button class="btn btn-primary"   onclick="showView('scraper')">+ New Job</button>
-    `;
-    renderDashboard();
-  }
-}
-
-// ── Theme ─────────────────────────────────────────────────────
-if (localStorage.getItem('theme') === 'dark') {
-  document.body.classList.add('dark');
-  document.getElementById('theme-icon').textContent  = '☀';
-  document.getElementById('theme-label').textContent = 'Light mode';
-}
-
-function toggleDark() {
-  const isDark = document.body.classList.toggle('dark');
-  localStorage.setItem('theme', isDark ? 'dark' : 'light');
-  document.getElementById('theme-icon').textContent  = isDark ? '☀' : '☽';
-  document.getElementById('theme-label').textContent = isDark ? 'Light mode' : 'Dark mode';
-}
-
-function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
-
-// ── Scraper helpers ───────────────────────────────────────────
-function pickFmt(btn) {
-  document.querySelectorAll('#fmt-group .tog').forEach(b => b.classList.remove('on'));
-  btn.classList.add('on');
-}
-
-function startCrawl() {
-  const url = document.getElementById('url').value.trim();
-  if (!url) { document.getElementById('url').focus(); return; }
-  // In production: POST to Crawl4AI API
-  sites.unshift({ id: Date.now(), domain: new URL(url).hostname, url, status:'running', pages:0, total:null, format:'markdown', depth:2, lastSync:'just now', added: new Date().toISOString().slice(0,10), runtime:null, logs:[{t:'now',m:'Crawl started',c:'info'}] });
-  updateSidebarCounts();
-  alert(`Crawl started for:\n${url}`);
-  resetForm();
-}
-
-function addToQueue() {
-  const url = document.getElementById('url').value.trim();
-  if (!url) { document.getElementById('url').focus(); return; }
-  sites.push({ id: Date.now(), domain: new URL(url).hostname, url, status:'queued', pages:0, total:null, format:'markdown', depth:2, lastSync:'—', added: new Date().toISOString().slice(0,10), runtime:null, logs:[{t:'now',m:'Added to queue',c:'info'}] });
-  updateSidebarCounts();
-  alert(`Added to queue:\n${url}`);
-  resetForm();
-}
-
-function resetForm() {
-  ['url','include','exclude','selector'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('maxpages').value = '200';
-}
-
-function renderRecentJobs() {
-  const el = document.getElementById('recent-jobs');
-  const recent = sites.slice(0, 5);
-  el.innerHTML = recent.map((s, i) => {
-    const pct = s.total ? Math.round(s.pages/s.total*100) : (s.status==='done' ? 100 : 0);
-    const dotColor = { done: 'var(--success)', running: 'var(--info)', queued: 'var(--gray-400)', error: 'var(--error)' }[s.status];
-    const fillClass = 'fill-'+s.status;
-    return `
-      <div class="job-row su" style="animation-delay:${200+i*30}ms" onclick="showView('dashboard');setTimeout(()=>openPanel(${s.id}),50)">
-        <div class="job-dot" style="background:${dotColor}"></div>
-        <div class="job-info">
-          <div class="job-url">${s.url}</div>
-          <div class="job-meta">
-            <span class="badge b-${s.status}">${statusLabel(s.status)}</span>
-            <span>depth ${s.depth} · ${s.format}</span>
-            <span>${s.lastSync}</span>
-          </div>
-          ${s.status !== 'queued' ? `<div class="job-progress"><div class="job-progress-fill ${fillClass}" style="width:${pct}%"></div></div>` : ''}
-        </div>
-        <div class="job-pages">
-          <div class="job-pages-num">${s.pages ? s.pages.toLocaleString() : '—'}</div>
-          <div class="job-pages-lbl">pages</div>
-        </div>
-      </div>`;
-  }).join('');
-}
-
-// ── Dashboard ─────────────────────────────────────────────────
-function statusLabel(st) {
-  return { done:'Finished', running:'In Progress', queued:'Not Started', error:'Error' }[st] || st;
-}
-
-function getFiltered() {
-  return sites.filter(s => {
-    const mf = currentFilter === 'all' || s.status === currentFilter;
-    const ms = !currentSearch || s.domain.includes(currentSearch) || s.url.includes(currentSearch);
-    return mf && ms;
-  });
-}
-
-function renderDashboard() {
-  updateSidebarCounts();
-  const filtered = getFiltered();
-  document.getElementById('table-count').textContent = `${filtered.length} site${filtered.length !== 1 ? 's' : ''}`;
-
-  const table = document.getElementById('sites-table');
-  if (!filtered.length) {
-    table.innerHTML = `<div class="empty">No sites match your filter.</div>`;
-    return;
+  // ─── Config ───────────────────────────────────────────────────────────────
+  function loadConfig() {
+    cfg = JSON.parse(localStorage.getItem('c4n_config') || '{}');
+    document.getElementById('cfg-api').value     = cfg.api     || 'http://localhost:11235';
+    document.getElementById('cfg-output').value  = cfg.output  || '';
+    document.getElementById('cfg-maxpages').value = cfg.maxpages || '';
+    if (cfg.format) forceSelect('cfg-format', cfg.format);
+    if (cfg.depth)  forceSelect('cfg-depth',  String(cfg.depth));
+    if (cfg.format) forceSelect('format', cfg.format);
+    if (cfg.depth)  forceSelect('depth',  String(cfg.depth));
   }
 
-  table.innerHTML = filtered.map((s, i) => {
-    const pct = s.total ? Math.round(s.pages/s.total*100) : (s.status==='done' ? 100 : 0);
-    const syncDisabled = (s.status==='running'||s.status==='queued') ? 'disabled' : '';
-    return `
-      <div class="site-row su ${selectedId===s.id?'is-selected':''}" style="animation-delay:${i*25}ms" onclick="openPanel(${s.id})">
-        <div class="s-dot s-dot-${s.status}"></div>
-        <div class="s-info">
-          <div class="s-domain">${s.domain}</div>
-          <div class="s-url">${s.url}</div>
-        </div>
-        <div class="s-prog">
-          <div class="s-prog-nums">
-            <span>${s.pages.toLocaleString()}${s.total ? `<span style="color:var(--text-muted)">/${s.total.toLocaleString()}</span>` : ''}</span>
-            <span>${pct}%</span>
+  function saveConfig() {
+    cfg = {
+      api:      document.getElementById('cfg-api').value.trim()    || 'http://localhost:11235',
+      output:   document.getElementById('cfg-output').value.trim() || './output',
+      maxpages: document.getElementById('cfg-maxpages').value      || '',
+      format:   picks['cfg-format'],
+      depth:    picks['cfg-depth'],
+    };
+    localStorage.setItem('c4n_config', JSON.stringify(cfg));
+    showToast('Settings saved ✓');
+    checkServer();
+  }
+
+  function saveSites() {
+    localStorage.setItem('c4n_sites', JSON.stringify(sites));
+  }
+
+  // ─── Pickers ──────────────────────────────────────────────────────────────
+  function selectPick(name, btn) {
+    const group = btn.closest('.picker');
+    group.querySelectorAll('.pick-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    picks[name] = btn.dataset.val;
+  }
+
+  function forceSelect(name, val) {
+    const picker = document.getElementById('picker-' + name);
+    if (!picker) return;
+    const btn = picker.querySelector('[data-val="' + val + '"]');
+    if (!btn) return;
+    picker.querySelectorAll('.pick-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    picks[name] = val;
+  }
+
+  // ─── Views ────────────────────────────────────────────────────────────────
+  function showView(name) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('view-' + name).classList.add('active');
+    document.getElementById('nav-' + name).classList.add('active');
+    if (name === 'dashboard') renderDashboard();
+    closeMobileMenu();
+  }
+
+  // ─── Sidebar ──────────────────────────────────────────────────────────────
+  function toggleSidebar() {
+    const sb = document.getElementById('sidebar');
+    const btn = document.getElementById('collapseBtn');
+    sb.classList.toggle('collapsed');
+    btn.textContent = sb.classList.contains('collapsed') ? '▶' : '◀';
+  }
+
+  function openMobileMenu()  {
+    document.getElementById('sidebar').classList.add('mobile-open');
+    document.getElementById('mobileOverlay').classList.add('open');
+  }
+  function closeMobileMenu() {
+    document.getElementById('sidebar').classList.remove('mobile-open');
+    document.getElementById('mobileOverlay').classList.remove('open');
+  }
+
+  // ─── Dark mode ────────────────────────────────────────────────────────────
+  function toggleDark() {
+    document.body.classList.toggle('dark');
+    localStorage.setItem('c4n_dark', document.body.classList.contains('dark') ? '1' : '0');
+  }
+
+  // ─── Advanced accordion ───────────────────────────────────────────────────
+  function toggleAdvanced() {
+    const btn  = document.getElementById('advToggle');
+    const body = document.getElementById('advBody');
+    btn.classList.toggle('open');
+    body.classList.toggle('open');
+  }
+
+  // ─── Server check ─────────────────────────────────────────────────────────
+  async function checkServer() {
+    const dot  = document.getElementById('statusDot');
+    const txt  = document.getElementById('statusText');
+    dot.className  = 'status-dot checking';
+    txt.textContent = 'Checking…';
+    const api = cfg.api || 'http://localhost:11235';
+    try {
+      const res = await fetch(api + '/health', { signal: AbortSignal.timeout(4000) });
+      const data = await res.json();
+      if (data.status) {
+        dot.className  = 'status-dot online';
+        txt.textContent = 'Server online';
+      } else { throw new Error(); }
+    } catch {
+      dot.className  = 'status-dot offline';
+      txt.textContent = 'Server offline';
+    }
+  }
+
+  async function testConnection() {
+    const api = document.getElementById('cfg-api').value.trim();
+    const el  = document.getElementById('connResult');
+    el.className = 'connection-result';
+    el.textContent = '⏳ Testing…';
+    el.style.display = 'block';
+    try {
+      const res  = await fetch(api + '/health', { signal: AbortSignal.timeout(5000) });
+      const data = await res.json();
+      if (data.status) {
+        el.className  = 'connection-result success';
+        el.textContent = '✓ Connected! Crawl4AI is running.';
+      } else { throw new Error('bad status'); }
+    } catch {
+      el.className  = 'connection-result error';
+      el.textContent = '✗ Can\'t connect. Is Docker running with Crawl4AI?';
+    }
+  }
+
+  // ─── New Scrape ───────────────────────────────────────────────────────────
+  function startScrape() {
+    const url = document.getElementById('inp-url').value.trim();
+    if (!url) { showToast('Please enter a website address ↑'); return; }
+    let name = document.getElementById('inp-name').value.trim();
+    if (!name) {
+      try { name = new URL(url).hostname.replace('www.', ''); } catch { name = url; }
+    }
+    const id   = Date.now();
+    const site = {
+      id,
+      name,
+      url,
+      status:   'waiting',
+      depth:    picks.depth,
+      format:   picks.format,
+      speed:    picks.speed,
+      js:       document.getElementById('opt-js').checked,
+      sameDomain: document.getElementById('opt-same-domain').checked,
+      resume:   document.getElementById('opt-resume').checked,
+      maxpages: document.getElementById('opt-maxpages').value || cfg.maxpages || '',
+      prefix:   document.getElementById('opt-prefix').value.trim(),
+      output:   document.getElementById('inp-output').value.trim() || cfg.output || './output',
+      progress: 0,
+      pages:    0,
+      added:    new Date().toISOString(),
+      finished: null,
+    };
+    sites.unshift(site);
+    saveSites();
+    showToast('Added "' + name + '" — go to My Scrapes to run it.');
+    // reset form
+    document.getElementById('inp-url').value  = '';
+    document.getElementById('inp-name').value = '';
+    document.getElementById('inp-output').value = '';
+    document.getElementById('opt-maxpages').value = '';
+    document.getElementById('opt-prefix').value   = '';
+    showView('dashboard');
+  }
+
+  // ─── Dashboard ────────────────────────────────────────────────────────────
+  function renderDashboard() {
+    const done    = sites.filter(s => s.status === 'done').length;
+    const running = sites.filter(s => s.status === 'running').length;
+    const waiting = sites.filter(s => s.status === 'waiting').length;
+    document.getElementById('stat-total').textContent   = sites.length;
+    document.getElementById('stat-done').textContent    = done;
+    document.getElementById('stat-running').textContent = running;
+    document.getElementById('stat-waiting').textContent = waiting;
+
+    const filtered = curFilter === 'all' ? sites : sites.filter(s => s.status === curFilter);
+    document.getElementById('dashCount').textContent =
+      filtered.length === 0 ? 'No sites' :
+      filtered.length + ' site' + (filtered.length !== 1 ? 's' : '');
+
+    const list = document.getElementById('siteList');
+    if (sites.length === 0) {
+      list.innerHTML = `<div class="empty-state">
+        <div class="empty-emoji">🕸️</div>
+        <div class="empty-title">Nothing here yet</div>
+        <div class="empty-desc">Add your first website using <strong>New Scrape</strong> and it'll show up here.</div>
+      </div>`;
+      return;
+    }
+    if (filtered.length === 0) {
+      list.innerHTML = `<div class="empty-state">
+        <div class="empty-emoji">🔍</div>
+        <div class="empty-title">No matches</div>
+        <div class="empty-desc">No sites match this filter.</div>
+      </div>`;
+      return;
+    }
+
+    list.innerHTML = filtered.map((s, i) => {
+      const badge = statusBadge(s.status);
+      const icon  = siteIcon(s.url);
+      const delayMs = i * 40;
+      const pct = s.progress || 0;
+      const barColor = s.status === 'done' ? '' : s.status === 'running' ? ' warning' : '';
+      return `<div class="site-row" style="animation-delay:${delayMs}ms" onclick="openPanel(${s.id})">
+        <div class="site-icon">${icon}</div>
+        <div class="site-info">
+          <div class="site-name">${esc(s.name)}</div>
+          <div class="site-url">${esc(s.url)}</div>
+          <div class="site-meta">
+            ${badge}
+            <span class="site-stat">📄 ${s.pages || 0} pages</span>
+            <span class="site-stat">🌊 Depth ${s.depth}</span>
+            <span class="site-stat">📋 ${s.format}</span>
           </div>
-          <div class="s-prog-bar"><div class="s-prog-fill fill-${s.status}" style="width:${pct}%"></div></div>
+          ${s.status !== 'waiting' ? `<div class="progress-wrap"><div class="progress-fill${barColor}" style="width:${pct}%"></div></div>` : ''}
         </div>
-        <div><span class="badge b-${s.status}">${statusLabel(s.status)}</span></div>
-        <div class="s-date">${s.lastSync}</div>
-        <div onclick="event.stopPropagation()">
-          <button class="sync-btn" ${syncDisabled} onclick="syncRow(${s.id},this)">↻ Sync</button>
+        <div class="site-actions" onclick="event.stopPropagation()">
+          <button class="btn btn-secondary btn-sm" onclick="syncRow(${s.id})" title="Sync this site">↻</button>
+          <button class="btn btn-danger btn-sm" onclick="removeRow(${s.id})" title="Remove">✕</button>
         </div>
       </div>`;
-  }).join('');
-}
+    }).join('');
+  }
 
-function updateSidebarCounts() {
-  const total   = sites.length;
-  const done    = sites.filter(s=>s.status==='done').length;
-  const running = sites.filter(s=>s.status==='running').length;
-  const queued  = sites.filter(s=>s.status==='queued').length;
+  function statusBadge(status) {
+    if (status === 'done')    return '<span class="badge badge-success">✓ Done</span>';
+    if (status === 'running') return '<span class="badge badge-warning">⟳ Running</span>';
+    return '<span class="badge badge-neutral">⏳ Waiting</span>';
+  }
 
-  document.getElementById('sb-total').textContent   = total;
-  document.getElementById('sb-done').textContent    = done;
-  document.getElementById('sb-running').textContent = running;
-  document.getElementById('sb-queued').textContent  = queued;
-  document.getElementById('nav-running-badge').textContent = running;
+  function siteIcon(url) {
+    try {
+      const h = new URL(url).hostname;
+      if (h.includes('github'))   return '🐙';
+      if (h.includes('docs'))     return '📚';
+      if (h.includes('blog'))     return '✍️';
+      if (h.includes('python'))   return '🐍';
+      if (h.includes('react'))    return '⚛️';
+      if (h.includes('youtube'))  return '▶️';
+      if (h.includes('twitter') || h.includes('x.com')) return '🐦';
+    } catch {}
+    return '🌐';
+  }
 
-  document.getElementById('kpi-total').textContent   = total;
-  document.getElementById('kpi-done').textContent    = done;
-  document.getElementById('kpi-running').textContent = running;
-  document.getElementById('kpi-queued').textContent  = queued;
-
-  document.getElementById('fc-all').textContent     = total;
-  document.getElementById('fc-done').textContent    = done;
-  document.getElementById('fc-running').textContent = running;
-  document.getElementById('fc-queued').textContent  = queued;
-
-  const dPct = total ? Math.round(done/total*100) : 0;
-  const rPct = total ? Math.round(running/total*100) : 0;
-  const qPct = total ? Math.round(queued/total*100) : 0;
-  document.getElementById('kpi-done-bar').style.width    = dPct + '%';
-  document.getElementById('kpi-running-bar').style.width = rPct + '%';
-  document.getElementById('kpi-queued-bar').style.width  = qPct + '%';
-}
-
-function setFilter(f, el) {
-  currentFilter = f;
-  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
-  el.classList.add('active');
-  renderDashboard();
-}
-
-function onSearch(val) {
-  currentSearch = val.toLowerCase();
-  renderDashboard();
-}
-
-function sortSites(val) {
-  if (val === 'name')   sites.sort((a,b) => a.domain.localeCompare(b.domain));
-  else if (val==='pages')  sites.sort((a,b) => b.pages-a.pages);
-  else if (val==='status') sites.sort((a,b) => ['running','queued','done','error'].indexOf(a.status)-['running','queued','done','error'].indexOf(b.status));
-  else sites.sort((a,b) => b.id-a.id);
-  renderDashboard();
-}
-
-function syncRow(id, btn) {
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinning">↻</span> Syncing…';
-  setTimeout(() => {
-    const s = sites.find(x=>x.id===id);
-    if (s) { s.lastSync = 'just now'; }
-    btn.disabled = false;
-    btn.innerHTML = '↻ Sync';
+  function setFilter(f, btn) {
+    curFilter = f;
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
     renderDashboard();
-    if (selectedId === id) openPanel(id);
-  }, 2000);
-}
+  }
 
-function syncAll() {
-  sites.filter(s=>s.status==='done').forEach(s=>{ s.lastSync='just now'; });
-  renderDashboard();
-}
+  function syncAll() {
+    if (sites.length === 0) { showToast('No sites to sync'); return; }
+    sites.forEach(s => { if (s.status !== 'running') simulateSync(s.id); });
+    renderDashboard();
+    showToast('Syncing all sites…');
+  }
 
-// ── Detail Panel ──────────────────────────────────────────────
-function openPanel(id) {
-  const s = sites.find(x=>x.id===id);
-  if (!s) return;
-  selectedId = id;
-  renderDashboard();
+  function syncRow(id) {
+    const s = sites.find(s => s.id === id);
+    if (!s) return;
+    simulateSync(id);
+    renderDashboard();
+    showToast('Syncing "' + s.name + '"…');
+  }
 
-  const pct = s.total ? Math.round(s.pages/s.total*100) : (s.status==='done'?100:0);
+  function removeRow(id) {
+    const s = sites.find(s => s.id === id);
+    if (!s) return;
+    if (!confirm('Remove "' + s.name + '" from your list?')) return;
+    sites = sites.filter(s => s.id !== id);
+    saveSites();
+    closePanel();
+    renderDashboard();
+    showToast('Removed "' + s.name + '"');
+  }
 
-  document.getElementById('panel-crumb-label').textContent = s.domain;
+  // Demo simulation (replace with real Crawl4AI API calls)
+  function simulateSync(id) {
+    const s = sites.find(s => s.id === id);
+    if (!s) return;
+    s.status   = 'running';
+    s.progress = 0;
+    saveSites();
+    renderDashboard();
+    let p = 0;
+    const tick = setInterval(() => {
+      p += Math.random() * 18 + 4;
+      const cur = sites.find(s => s.id === id);
+      if (!cur) { clearInterval(tick); return; }
+      cur.progress = Math.min(p, 100);
+      cur.pages    = Math.floor(cur.progress * 0.8);
+      if (p >= 100) {
+        cur.status   = 'done';
+        cur.progress = 100;
+        cur.finished = new Date().toISOString();
+        clearInterval(tick);
+      }
+      saveSites();
+      renderDashboard();
+    }, 400);
+  }
 
-  const logs = s.logs.length
-    ? s.logs.map(l=>`<div class="log-row"><div class="log-time">${l.t}</div><div class="log-text ${l.c}">${l.m}</div></div>`).join('')
-    : `<div style="font-size:var(--text-xs);color:var(--text-muted)">No logs yet</div>`;
+  // ─── Detail panel ─────────────────────────────────────────────────────────
+  function openPanel(id) {
+    const s = sites.find(s => s.id === id);
+    if (!s) return;
+    document.getElementById('panelTitle').textContent = s.name;
+    const added    = s.added    ? new Date(s.added).toLocaleString()    : '—';
+    const finished = s.finished ? new Date(s.finished).toLocaleString() : '—';
+    document.getElementById('panelBody').innerHTML = `
+      <div class="panel-field">
+        <div class="panel-field-label">Status</div>
+        <div>${statusBadge(s.status)}</div>
+      </div>
+      <div class="panel-field">
+        <div class="panel-field-label">URL</div>
+        <div class="panel-field-value"><a href="${esc(s.url)}" target="_blank" style="color:var(--accent-600);text-decoration:none;">${esc(s.url)} ↗</a></div>
+      </div>
+      <div class="panel-field">
+        <div class="panel-field-label">Pages grabbed</div>
+        <div class="panel-field-value">${s.pages || 0}</div>
+      </div>
+      <div class="panel-field">
+        <div class="panel-field-label">Progress</div>
+        <div class="progress-wrap" style="margin-top:0;"><div class="progress-fill" style="width:${s.progress||0}%"></div></div>
+        <div style="font-family:var(--font-mono);font-size:var(--text-sm);margin-top:4px;">${s.progress||0}%</div>
+      </div>
+      <div class="panel-field">
+        <div class="panel-field-label">Depth / Format / Speed</div>
+        <div class="panel-field-value">${s.depth} · ${s.format} · ${speedLabel(s.speed)}</div>
+      </div>
+      <div class="panel-field">
+        <div class="panel-field-label">Save folder</div>
+        <div class="panel-field-value">${esc(s.output || './output')}</div>
+      </div>
+      <div class="panel-field">
+        <div class="panel-field-label">Added</div>
+        <div class="panel-field-value">${added}</div>
+      </div>
+      <div class="panel-field">
+        <div class="panel-field-label">Finished</div>
+        <div class="panel-field-value">${finished}</div>
+      </div>
+      <div style="display:flex;gap:var(--sp3);margin-top:var(--sp4);">
+        <button class="btn btn-primary" onclick="syncRow(${s.id});closePanel()">↻ Sync now</button>
+        <button class="btn btn-danger"  onclick="removeRow(${s.id})">✕ Remove</button>
+      </div>`;
+    document.getElementById('panelOverlay').classList.add('open');
+    document.getElementById('detailPanel').classList.add('open');
+  }
 
-  document.getElementById('panel-body').innerHTML = `
-    <div class="panel-domain">${s.domain}</div>
-    <div class="panel-url">${s.url}</div>
+  function closePanel() {
+    document.getElementById('panelOverlay').classList.remove('open');
+    document.getElementById('detailPanel').classList.remove('open');
+  }
 
-    <div class="panel-badges">
-      <span class="badge b-${s.status}">${statusLabel(s.status)}</span>
-      <span class="badge b-queued">${s.format}</span>
-      <span class="badge b-queued">depth ${s.depth}</span>
-    </div>
+  function speedLabel(v) {
+    if (v == 1) return 'Slow';
+    if (v == 8) return 'Fast';
+    return 'Normal';
+  }
 
-    <div class="metrics-grid">
-      <div class="metric"><div class="metric-val">${s.pages.toLocaleString()}</div><div class="metric-lbl">Scraped</div></div>
-      <div class="metric"><div class="metric-val">${s.total ? s.total.toLocaleString() : '—'}</div><div class="metric-lbl">Total</div></div>
-      <div class="metric"><div class="metric-val">${s.runtime || '—'}</div><div class="metric-lbl">Runtime</div></div>
-    </div>
+  // ─── Toast ────────────────────────────────────────────────────────────────
+  let toastTimer;
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+  }
 
-    <div class="panel-label">Progress</div>
-    <div class="big-progress"><div class="big-progress-fill fill-${s.status}" style="width:${pct}%"></div></div>
-    <div class="big-progress-labels"><span>${s.pages.toLocaleString()} pages</span><span>${pct}%</span></div>
+  // ─── Utilities ────────────────────────────────────────────────────────────
+  function esc(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
 
-    <div class="panel-divider"></div>
-
-    <div class="panel-label">Activity Log</div>
-    <div class="log-list">${logs}</div>
-
-    <div class="panel-divider"></div>
-
-    <div class="panel-label">Added</div>
-    <div style="font-family:var(--font-mono);font-size:var(--text-sm);color:var(--text-secondary);margin-bottom:var(--sp5)">${s.added}</div>
-
-    <div class="panel-actions">
-      <button class="panel-btn pb-primary" ${s.status==='running'?'disabled':''} onclick="syncFromPanel(${s.id})">↻ Sync — Fetch New Pages</button>
-      <button class="panel-btn pb-secondary" onclick="alert('Downloading output for ${s.domain}')">↓ Download Output</button>
-      <button class="panel-btn pb-secondary" onclick="showView('scraper')">⬡ Re-scrape with New Options</button>
-      <button class="panel-btn pb-danger" onclick="removeSite(${s.id})">✕ Remove Site</button>
-    </div>
-  `;
-
-  document.getElementById('panel').classList.add('open');
-  document.getElementById('main').classList.add('has-panel');
-}
-
-function closePanel() {
-  selectedId = null;
-  document.getElementById('panel').classList.remove('open');
-  document.getElementById('main').classList.remove('has-panel');
-  renderDashboard();
-}
-
-function syncFromPanel(id) {
-  const s = sites.find(x=>x.id===id);
-  if (!s) return;
-  s.status = 'running'; s.lastSync = 'syncing…';
-  renderDashboard(); openPanel(id);
-  setTimeout(() => {
-    s.status = 'done'; s.lastSync = 'just now';
-    renderDashboard(); if (selectedId===id) openPanel(id);
-  }, 3000);
-}
-
-function removeSite(id) {
-  if (!confirm('Remove this site from the dashboard?')) return;
-  const idx = sites.findIndex(x=>x.id===id);
-  if (idx > -1) sites.splice(idx, 1);
-  closePanel();
-}
-
-// ── Init ──────────────────────────────────────────────────────
-showView('scraper');
+  // ─── Boot ─────────────────────────────────────────────────────────────────
+  (function init() {
+    // Dark mode
+    if (localStorage.getItem('c4n_dark') === '1') document.body.classList.add('dark');
+    // Config
+    loadConfig();
+    // Dashboard scroll container responsive padding
+    const scroll = document.getElementById('dashScroll');
+    if (scroll) {
+      scroll.style.padding = '0 var(--sp8) var(--sp8)';
+    }
+    // Server health check
+    checkServer();
+    // Re-check every 30s
+    setInterval(checkServer, 30000);
+    // Initial render
+    renderDashboard();
+  })();
 </script>
 </body>
 </html>
