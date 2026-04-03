@@ -2,6 +2,10 @@
 
 A no-code GUI for [Crawl4AI](https://github.com/unclecode/crawl4ai) — for people who want to scrape websites without touching the command line.
 
+| New Scrape | Job Hub |
+|---|---|
+| ![New Scrape](docs/screenshot-new-scrape.png) | ![Job Hub](docs/screenshot-job-hub.png) |
+
 ---
 
 ## Getting started (2 steps)
@@ -14,11 +18,11 @@ docker run -p 11235:11235 unclecode/crawl4ai:latest
 
 **Step 2 — Open the app**
 
-Double-click **`start.bat`** — the scraper opens in your browser automatically.
+Double-click **`start.bat`** — installs requirements, starts the server, and opens your browser automatically.
 
-> On Mac/Linux: open `index.html` directly in your browser.
+> On Mac/Linux: `pip install flask aiohttp && python server.py`
 
-That's it. No install, no terminal, no config files.
+That's it. No config files, no manual editing.
 
 ---
 
@@ -31,14 +35,14 @@ That's it. No install, no terminal, no config files.
 
 ## Views
 
-**New Scrape** — Paste a URL, pick your options with big visual buttons, hit Start. No jargon:
-- "How far should we go?" instead of "depth"
-- "Load interactive content" instead of "execute JavaScript"
-- "Slow / Normal / Fast" instead of concurrency numbers
+**New Scrape** — Pick a preset, paste URLs, choose a save folder, hit "Go Get It!". No jargon:
+- **Just Text** — clean readable text from one page (Markdown)
+- **Full Page** — follows links two levels deep, loads dynamic content
+- **Data Only** — structured JSON, one page
 
-**My Scrapes** — All your sites in one list. See what's done, what's running, what's waiting. Sync any site to pick up new pages.
+**Job Hub** — Live dashboard showing all jobs. See pages scraped in real time, open the output folder when done, re-scrape any job with one click.
 
-**Settings** — Set your server URL and default save folder through the UI. No file editing needed.
+**Settings** — Set the Crawl4AI server URL and default save folder through the UI. No file editing needed.
 
 ## Python scripts (for power users)
 
