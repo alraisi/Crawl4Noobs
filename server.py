@@ -344,7 +344,10 @@ def pick_folder():
 @app.route("/api/open-folder", methods=["POST"])
 def open_folder_route():
     folder = request.json.get("folder", "") or load_cfg().get("output_dir", "") or str(OUT_DIR)
-    folder = str(Path(folder))
+    # Always resolve to absolute path — os.startfile requires it on Windows
+    folder = str(Path(folder).resolve())
+    # Create the folder if it doesn't exist yet
+    Path(folder).mkdir(parents=True, exist_ok=True)
     try:
         if sys.platform == "win32":
             os.startfile(folder)
