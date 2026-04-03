@@ -638,6 +638,7 @@ function renderJobCard(j) {
       </div>
       <div class="job-actions">
         ${hasFile ? `<button class="btn btn-secondary btn-sm" onclick="openFolder('${esc(outDir)}')">📁 Open folder</button>` : ''}
+        ${!running ? `<button class="btn btn-ghost btn-sm" onclick="rescrape('${j.id}')" title="Scrape again">↻</button>` : ''}
         ${running  ? `<button class="btn btn-ghost btn-sm" onclick="cancelJob('${j.id}')">Stop</button>` : ''}
         ${!running ? `<button class="btn btn-danger btn-sm" onclick="deleteJob('${j.id}')">✕</button>` : ''}
       </div>
@@ -672,6 +673,31 @@ function toggleLog(id) {
 }
 
 // ── Job actions ────────────────────────────────────────────────────────────────
+async function rescrape(id) {
+  // Fetch the existing job to reuse its settings, then start a new scrape
+  try {
+    const res = await fetch(`/api/job/${id}`);
+    const j   = await res.json();
+    const body = {
+      urls:       j.urls || [j.url],
+      name:       j.name,
+      preset:     j.preset,
+      output_dir: j.output_dir || '',
+    };
+    const r = await fetch('/api/scrape', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const data = await r.json();
+    if (!r.ok) { toast(data.error || 'Could not start', '', 'error'); return; }
+    toast('Scraping again', `"${j.name}" restarted`, 'success');
+    fetchJobs();
+  } catch (e) {
+    toast('Error', e.message, 'error');
+  }
+}
+
 async function cancelJob(id) {
   await fetch(`/api/job/${id}/cancel`, { method: 'POST' });
   fetchJobs();

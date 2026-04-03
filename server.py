@@ -380,18 +380,18 @@ def scrape():
     if not raw:
         return jsonify({"error": "No URLs provided"}), 400
 
-    # Prevent re-scraping URLs already running or completed
+    # Only block URLs that are actively running right now (prevent concurrent duplicates)
     with lock:
-        active_urls: set[str] = set()
+        running_urls: set[str] = set()
         for j in jobs.values():
-            if j["status"] in ("running", "done"):
-                active_urls.update(norm(u) for u in j.get("urls", []))
-        new_urls = [u for u in raw if norm(u) not in active_urls]
+            if j["status"] == "running":
+                running_urls.update(norm(u) for u in j.get("urls", []))
+        new_urls = [u for u in raw if norm(u) not in running_urls]
 
     skipped = len(raw) - len(new_urls)
     if not new_urls:
         return jsonify({
-            "error": f"All {len(raw)} URL(s) have already been scraped or are running.",
+            "error": f"All {len(raw)} URL(s) are already running. Wait for them to finish first.",
             "skipped": skipped,
         }), 409
 
