@@ -2,7 +2,23 @@
 
 A no-code GUI for [Crawl4AI](https://github.com/unclecode/crawl4ai) — for people who want to scrape websites without touching the command line.
 
-Open `index.html` in your browser. That's it.
+---
+
+## Getting started (2 steps)
+
+**Step 1 — Start the engine** (one-time setup, needs [Docker](https://www.docker.com/products/docker-desktop/))
+
+```bash
+docker run -p 11235:11235 unclecode/crawl4ai:latest
+```
+
+**Step 2 — Open the app**
+
+Double-click **`start.bat`** — the scraper opens in your browser automatically.
+
+> On Mac/Linux: open `index.html` directly in your browser.
+
+That's it. No install, no terminal, no config files.
 
 ---
 
@@ -12,16 +28,6 @@ Open `index.html` in your browser. That's it.
 - Follow links automatically to scrape entire documentation sites or blogs
 - Track all your scrapes in one place with live progress bars
 - Everything is saved locally — no accounts, no cloud, no tracking
-
-## Requirements
-
-You need Crawl4AI running locally via Docker:
-
-```bash
-docker run -p 11235:11235 unclecode/crawl4ai:latest
-```
-
-That's the only setup. Then just open `index.html`.
 
 ## Views
 
