@@ -1103,22 +1103,27 @@
       added:    new Date().toISOString(),
       finished: null,
     };
+    // Store dir handle before resetting form
+    const dirHandle = window._dirHandle_inp_output || window._dirHandle_cfg_output || null;
+
+    site.status = 'running';
     sites.unshift(site);
     saveSites();
-    showToast('Added "' + name + '" — go to My Scrapes to run it.');
+
     // reset form
     document.getElementById('inp-url').value  = '';
     document.getElementById('inp-name').value = '';
     document.getElementById('inp-output').value = '';
     document.getElementById('opt-maxpages').value = '';
     document.getElementById('opt-prefix').value   = '';
-    // reset folder picker UI
     document.getElementById('folderPicker').classList.remove('has-folder');
     document.getElementById('folderPickerName').textContent = 'Click to choose a folder';
     document.getElementById('folderPickerHint').textContent = 'Using default save folder from Settings';
     document.getElementById('folderPickerChange').textContent = '';
     window._dirHandle_inp_output = null;
+
     showView('dashboard');
+    runScrape(site.id, dirHandle);
   }
 
   // ─── Dashboard ────────────────────────────────────────────────────────────
@@ -1171,6 +1176,7 @@
             <span class="site-stat">🌊 Depth ${s.depth}</span>
             <span class="site-stat">📋 ${s.format}</span>
           </div>
+          ${s.status === 'running' && s.lastUrl ? `<div style="font-size:var(--text-xs);color:var(--text-muted);margin-top:var(--sp1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">⟳ ${esc(s.lastUrl)}</div>` : ''}
           ${s.status !== 'waiting' ? `<div class="progress-wrap"><div class="progress-fill${barColor}" style="width:${pct}%"></div></div>` : ''}
         </div>
         <div class="site-actions" onclick="event.stopPropagation()">
@@ -1210,17 +1216,23 @@
 
   function syncAll() {
     if (sites.length === 0) { showToast('No sites to sync'); return; }
-    sites.forEach(s => { if (s.status !== 'running') simulateSync(s.id); });
+    sites.filter(s => s.status !== 'running').forEach(s => {
+      s.status = 'running'; s.progress = 0; s.pages = 0; s.log = []; s.lastUrl = '';
+      saveSites();
+      runScrape(s.id, null);
+    });
     renderDashboard();
     showToast('Syncing all sites…');
   }
 
   function syncRow(id) {
     const s = sites.find(s => s.id === id);
-    if (!s) return;
-    simulateSync(id);
+    if (!s || s.status === 'running') return;
+    s.status = 'running'; s.progress = 0; s.pages = 0; s.log = []; s.lastUrl = '';
+    saveSites();
     renderDashboard();
     showToast('Syncing "' + s.name + '"…');
+    runScrape(id, null);
   }
 
   function removeRow(id) {
@@ -1234,30 +1246,174 @@
     showToast('Removed "' + s.name + '"');
   }
 
-  // Demo simulation (replace with real Crawl4AI API calls)
-  function simulateSync(id) {
+  // ─── Real scraping engine ─────────────────────────────────────────────────
+  const _dirHandles = {};
+
+  function normUrl(url) { return url.split('#')[0].split('?')[0].replace(/\/$/, ''); }
+
+  function isAllowed(href, domain, prefix, sameDomain) {
+    try {
+      const p = new URL(href);
+      if (p.protocol !== 'http:' && p.protocol !== 'https:') return false;
+      if (sameDomain && p.hostname !== domain) return false;
+      if (prefix && !p.pathname.startsWith(prefix)) return false;
+      const skip = ['.png','.jpg','.jpeg','.gif','.svg','.ico','.webp',
+                    '.pdf','.zip','.css','.js','.woff','.woff2','.ttf','.eot'];
+      if (skip.some(e => p.pathname.toLowerCase().endsWith(e))) return false;
+      return true;
+    } catch { return false; }
+  }
+
+  async function crawlOne(url, js) {
+    const api = cfg.api || 'http://localhost:11235';
+    const payload = {
+      urls: [url],
+      crawler_params: { headless: true, javascript_enabled: js !== false },
+      extra: { wait_for_network_idle_page_load_time: 1.5 },
+    };
+    const resp = await fetch(api + '/crawl', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(90000),
+    });
+    return resp.json();
+  }
+
+  function buildMd(site, articles) {
+    let out = `# ${site.name}\n\nSource: ${site.url}  \nPages: ${articles.length}  \nScraped: ${new Date().toLocaleString()}\n\n---\n\n## Table of Contents\n\n`;
+    articles.forEach((a, i) => { out += `${i+1}. [${a.title}](${a.url})\n`; });
+    out += '\n---\n\n';
+    for (const a of articles) {
+      out += `## ${a.title}\n\n**URL:** ${a.url}  \n`;
+      if (a.desc) out += `**Summary:** ${a.desc}\n\n`;
+      out += `---\n\n${a.content}\n\n---\n\n`;
+    }
+    return out;
+  }
+
+  function buildJson(site, articles) {
+    return JSON.stringify({ name: site.name, url: site.url, scraped: new Date().toISOString(), pages: articles }, null, 2);
+  }
+
+  async function saveOutput(site, content, dirHandle) {
+    const ext = { json: '.json', html: '.html', text: '.txt' }[site.format] || '.md';
+    const filename = site.name.replace(/[^a-z0-9]/gi, '_').toLowerCase() + ext;
+    const handle = dirHandle || _dirHandles[site.id];
+    if (handle) {
+      try {
+        const fh = await handle.getFileHandle(filename, { create: true });
+        const w  = await fh.createWritable();
+        await w.write(content);
+        await w.close();
+        return filename;
+      } catch (e) { console.warn('FileSystem write failed, falling back to download', e); }
+    }
+    // Fallback: browser download
+    const mime = site.format === 'json' ? 'application/json' : 'text/plain';
+    const blob = new Blob([content], { type: mime + ';charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    return filename + ' (downloaded to your Downloads folder)';
+  }
+
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  async function runScrape(id, dirHandle) {
+    if (dirHandle) _dirHandles[id] = dirHandle;
     const s = sites.find(s => s.id === id);
     if (!s) return;
-    s.status   = 'running';
-    s.progress = 0;
-    saveSites();
-    renderDashboard();
-    let p = 0;
-    const tick = setInterval(() => {
-      p += Math.random() * 18 + 4;
-      const cur = sites.find(s => s.id === id);
-      if (!cur) { clearInterval(tick); return; }
-      cur.progress = Math.min(p, 100);
-      cur.pages    = Math.floor(cur.progress * 0.8);
-      if (p >= 100) {
-        cur.status   = 'done';
-        cur.progress = 100;
-        cur.finished = new Date().toISOString();
-        clearInterval(tick);
-      }
+
+    const maxDepth = Math.max(0, parseInt(s.depth) - 1);
+    const maxPages = s.maxpages ? parseInt(s.maxpages) : 500;
+    const delay    = s.speed == 1 ? 1500 : s.speed == 8 ? 100 : 500;
+    let domain = '';
+    try { domain = new URL(s.url).hostname; } catch {}
+
+    const visited  = new Set();
+    const articles = [];
+    const queue    = [{ url: normUrl(s.url), depth: 0 }];
+
+    function update(cur, log) {
+      if (log) { cur.log = cur.log || []; cur.log.unshift(log); if (cur.log.length > 8) cur.log.pop(); }
+      const total = visited.size + queue.length;
+      cur.progress = Math.min(Math.round(visited.size / Math.max(total, 1) * 100), 95);
+      cur.pages    = articles.length;
       saveSites();
       renderDashboard();
-    }, 400);
+    }
+
+    while (queue.length > 0 && visited.size < maxPages) {
+      const { url, depth } = queue.shift();
+      if (visited.has(url)) continue;
+      visited.add(url);
+
+      const cur = sites.find(s => s.id === id);
+      if (!cur || cur.status !== 'running') break;
+      cur.lastUrl = url;
+      update(cur, '⟳ ' + url);
+
+      try {
+        const result = await crawlOne(url, cur.js);
+        const res    = result?.results?.[0];
+        if (!res) { update(cur, '✗ No response for ' + url); continue; }
+
+        const mdObj   = res.markdown || {};
+        const content = mdObj.fit_markdown || mdObj.raw_markdown || '';
+        const meta    = res.metadata || {};
+        const title   = (meta.title || '').split('|')[0].trim() || url;
+
+        if (content.trim()) {
+          articles.push({ url, title, desc: meta.description || '', content: content.trim() });
+          update(cur, '✓ ' + title.slice(0, 70));
+        } else {
+          update(cur, '⚠ Empty page: ' + url);
+        }
+
+        if (depth < maxDepth) {
+          const base  = (() => { try { const p = new URL(url); return p.protocol + '//' + p.hostname; } catch { return ''; } })();
+          const links = [...(res.links?.internal || []), ...(res.links?.external || [])];
+          for (const lk of links) {
+            let href = lk.href || '';
+            if (href.startsWith('/')) href = base + href;
+            else if (!href.startsWith('http')) continue;
+            href = normUrl(href);
+            if (!visited.has(href) && !queue.find(q => q.url === href)) {
+              if (isAllowed(href, domain, cur.prefix, cur.sameDomain)) {
+                queue.push({ url: href, depth: depth + 1 });
+              }
+            }
+          }
+        }
+      } catch (e) {
+        const cur2 = sites.find(s => s.id === id);
+        if (cur2) update(cur2, '✗ ' + e.message);
+      }
+
+      if (delay && queue.length > 0) await sleep(delay);
+    }
+
+    const cur = sites.find(s => s.id === id);
+    if (!cur) return;
+
+    const content  = cur.format === 'json' ? buildJson(cur, articles) : buildMd(cur, articles);
+    const filename = await saveOutput(cur, content, _dirHandles[id]);
+
+    cur.status   = 'done';
+    cur.progress = 100;
+    cur.pages    = articles.length;
+    cur.finished = new Date().toISOString();
+    cur.filename = filename;
+    cur.lastUrl  = '';
+    cur.log      = cur.log || [];
+    cur.log.unshift('✅ Saved ' + articles.length + ' pages → ' + filename);
+    saveSites();
+    renderDashboard();
+    showToast('"' + cur.name + '" done — ' + articles.length + ' pages saved');
   }
 
   // ─── Detail panel ─────────────────────────────────────────────────────────
@@ -1290,8 +1446,8 @@
         <div class="panel-field-value">${s.depth} · ${s.format} · ${speedLabel(s.speed)}</div>
       </div>
       <div class="panel-field">
-        <div class="panel-field-label">Save folder</div>
-        <div class="panel-field-value">${esc(s.output || './output')}</div>
+        <div class="panel-field-label">Output file</div>
+        <div class="panel-field-value">${esc(s.filename || '—')}</div>
       </div>
       <div class="panel-field">
         <div class="panel-field-label">Added</div>
@@ -1301,9 +1457,15 @@
         <div class="panel-field-label">Finished</div>
         <div class="panel-field-value">${finished}</div>
       </div>
+      ${s.log && s.log.length ? `<div class="panel-field">
+        <div class="panel-field-label">Activity log</div>
+        <div style="font-family:var(--font-mono);font-size:var(--text-xs);line-height:1.7;color:var(--text-secondary);background:var(--bg-secondary);padding:var(--sp3);border-radius:var(--radius-md);border:1px solid var(--border-light);">
+          ${s.log.map(l => esc(l)).join('<br>')}
+        </div>
+      </div>` : ''}
       <div style="display:flex;gap:var(--sp3);margin-top:var(--sp4);">
-        <button class="btn btn-primary" onclick="syncRow(${s.id});closePanel()">↻ Sync now</button>
-        <button class="btn btn-danger"  onclick="removeRow(${s.id})">✕ Remove</button>
+        ${s.status !== 'running' ? `<button class="btn btn-primary" onclick="syncRow(${s.id});closePanel()">↻ Scrape again</button>` : '<span style="color:var(--text-muted);font-size:var(--text-sm);padding-top:8px;">Scraping in progress…</span>'}
+        <button class="btn btn-danger" onclick="removeRow(${s.id})">✕ Remove</button>
       </div>`;
     document.getElementById('panelOverlay').classList.add('open');
     document.getElementById('detailPanel').classList.add('open');
